@@ -174,7 +174,7 @@
       font-weight: 300;
       color: var(--text-dim);
       line-height: 1.5;
-      max-width: 500px;
+      max-width: 100%;
       margin-bottom: 40px;
       opacity: 0;
       animation: fadeUp 0.8s ease-out 0.65s forwards;
@@ -450,7 +450,10 @@
     }
 
     /* ── Mobile ── */
+    .mobile-break { display: none; }
+
     @media (max-width: 480px) {
+      .mobile-break { display: block; }
       .container {
         padding: 48px 20px 36px;
       }
@@ -482,7 +485,7 @@
     </div>
 
     <!-- Headline -->
-    <h1 class="headline">Pressure Test Your <span>Short Game</span></h1>
+    <h1 class="headline">Pressure Test Your <br class="mobile-break"><span>Short Game</span></h1>
 
     <!-- Subtitle -->
     <p class="subtitle">The unique golf app gamifying short game practice: drills, pressure tests, and progress tracking in one spot.</p>
