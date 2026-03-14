@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -535,84 +535,90 @@
   </footer>
 
   <script>
-    // ── Supabase config ──
-    // Replace these with your Supabase project credentials
-    const SUPABASE_URL = 'https://tptmwnkqntnlgwdhoqdd.supabase.co';
-    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwdG13bmtxbnRubGd3ZGhvcWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0NzcyMjIsImV4cCI6MjA4OTA1MzIyMn0.fps_A1gZYt4x2odi-M7CVxdyO2RC2ZwoCEihPLXtFJA';
+    document.addEventListener('DOMContentLoaded', function() {
+      // ── Supabase config ──
+      const SUPABASE_URL = 'https://tptmwnkqntnlgwdhoqdd.supabase.co';
+      const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRwdG13bmtxbnRubGd3ZGhvcWRkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0NzcyMjIsImV4cCI6MjA4OTA1MzIyMn0.fps_A1gZYt4x2odi-M7CVxdyO2RC2ZwoCEihPLXtFJA';
 
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    // ── Form handling ──
-    const form = document.getElementById('signupForm');
-    const formWrapper = document.getElementById('formWrapper');
-    const successState = document.getElementById('successState');
-    const submitBtn = document.getElementById('submitBtn');
-    const formError = document.getElementById('formError');
-    const nameInput = document.getElementById('nameInput');
-    const emailInput = document.getElementById('emailInput');
-
-    function showError(msg) {
-      formError.textContent = msg;
-      formError.classList.add('visible');
-    }
-
-    function clearError() {
-      formError.textContent = '';
-      formError.classList.remove('visible');
-    }
-
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      clearError();
-
-      const name = nameInput.value.trim();
-      const email = emailInput.value.trim();
-
-      if (!name) { showError('Please enter your name.'); nameInput.focus(); return; }
-      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('Please enter a valid email.'); emailInput.focus(); return; }
-
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Signing up...';
-
+      let supabaseClient = null;
       try {
-        const { error } = await supabaseClient.from('signups').insert([{ name, email }]);
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+      } catch (err) {
+        console.warn('Supabase failed to load:', err);
+      }
 
-        if (error) {
-          if (error.code === '23505') {
-            showError('This email is already signed up!');
-          } else {
-            showError('Something went wrong. Please try again.');
-            console.error('Supabase error:', error);
+      // ── Form handling ──
+      const form = document.getElementById('signupForm');
+      const formWrapper = document.getElementById('formWrapper');
+      const successState = document.getElementById('successState');
+      const submitBtn = document.getElementById('submitBtn');
+      const formError = document.getElementById('formError');
+      const nameInput = document.getElementById('nameInput');
+      const emailInput = document.getElementById('emailInput');
+
+      function showError(msg) {
+        formError.textContent = msg;
+        formError.classList.add('visible');
+      }
+
+      function clearError() {
+        formError.textContent = '';
+        formError.classList.remove('visible');
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        clearError();
+
+        const name = nameInput.value.trim();
+        const email = emailInput.value.trim();
+
+        if (!name) { showError('Please enter your name.'); nameInput.focus(); return; }
+        if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('Please enter a valid email.'); emailInput.focus(); return; }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Signing up...';
+
+        try {
+          if (!supabaseClient) throw new Error('Supabase not loaded');
+          const { error } = await supabaseClient.from('signups').insert([{ name, email }]);
+
+          if (error) {
+            if (error.code === '23505') {
+              showError('This email is already signed up!');
+            } else {
+              showError('Something went wrong. Please try again.');
+              console.error('Supabase error:', error);
+            }
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Get Early Access';
+            return;
           }
+
+          formWrapper.style.display = 'none';
+          successState.classList.add('visible');
+        } catch (err) {
+          showError('Connection error. Please try again.');
+          console.error('Error:', err);
           submitBtn.disabled = false;
           submitBtn.textContent = 'Get Early Access';
-          return;
         }
+      });
 
-        formWrapper.style.display = 'none';
-        successState.classList.add('visible');
-      } catch (err) {
-        showError('Connection error. Please try again.');
-        console.error('Error:', err);
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Get Early Access';
-      }
-    });
+      // ── Video fallback ──
+      const video = document.getElementById('promoVideo');
+      const fallback = document.getElementById('videoFallback');
 
-    // ── Video fallback ──
-    const video = document.getElementById('promoVideo');
-    const fallback = document.getElementById('videoFallback');
+      video.addEventListener('error', () => {
+        video.style.display = 'none';
+        fallback.style.display = 'flex';
+      });
 
-    video.addEventListener('error', () => {
-      video.style.display = 'none';
-      fallback.style.display = 'flex';
-    });
-
-    // Check if source fails to load
-    const source = video.querySelector('source');
-    source.addEventListener('error', () => {
-      video.style.display = 'none';
-      fallback.style.display = 'flex';
+      const source = video.querySelector('source');
+      source.addEventListener('error', () => {
+        video.style.display = 'none';
+        fallback.style.display = 'flex';
+      });
     });
   </script>
 </body>
