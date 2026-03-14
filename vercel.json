@@ -1,0 +1,26 @@
+{
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "scoring-zone.vercel.app"
+        }
+      ],
+      "destination": "https://scoringzone.app/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "scoring-zone-website.vercel.app"
+        }
+      ],
+      "destination": "https://scoringzone.app/$1",
+      "permanent": true
+    }
+  ]
+}
