@@ -1,0 +1,1544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Golf Chipping Drills App — Scored Short Game Practice | Scoring Zone</title>
+  <meta name="description" content="Scored chipping drills for every level. Build consistency, track progress, and finally fix your short game with Scoring Zone.">
+  <link rel="icon" type="image/png" href="https://scoringzone.net/logo/new-log.png">
+  <link rel="canonical" href="https://scoringzone.net/features/chipping-drills">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet">
+
+  <!-- FAQ Schema Markup -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How many chipping drills are there?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The Scoring Zone chipping drills app includes a growing library covering every short game scenario — bump and run, flops, bunkers, distance control, up-and-downs, and full pressure tests. New drills are added regularly based on player feedback."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Do I need any special equipment?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Just your wedges and some balls. The app works wherever you can chip — a practice facility, short game area, or your backyard."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is it right for beginners?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes. Scoring Zone starts with guided fundamentals and scales all the way to advanced pressure challenges for scratch golfers. Every level is covered."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does progress tracking work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Every drill in the chipping drills app is scored automatically and saved. Over time you'll see your trends, spot weaknesses, and watch your short game handicap fall — session by session."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is Scoring Zone free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Scoring Zone is currently in early access. Sign up to get full access to all drills and features — no payment required to get started."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #060b08;
+      --bg-card: #0c1410;
+      --bg-card-hover: #111d16;
+      --green: #22c55e;
+      --green-light: #4ade80;
+      --green-dark: #166534;
+      --green-glow: rgba(34, 197, 94, 0.35);
+      --green-subtle: rgba(34, 197, 94, 0.06);
+      --text: #f0fdf4;
+      --text-dim: rgba(240, 253, 244, 0.55);
+      --text-muted: rgba(240, 253, 244, 0.35);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-green: rgba(34, 197, 94, 0.2);
+      --amber: #f5a623;
+      --amber-glow: rgba(245, 166, 35, 0.25);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+      line-height: 1.6;
+    }
+
+    /* ── Noise texture ── */
+    .noise {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 128px 128px;
+    }
+
+    /* ── Typography ── */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Barlow Condensed', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+      font-weight: 700;
+      line-height: 1.1;
+    }
+
+    .font-heading {
+      font-family: 'Barlow Condensed', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+    }
+
+    /* ── Layout ── */
+    .page-wrapper {
+      position: relative;
+      z-index: 1;
+    }
+
+    .section {
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 80px 24px;
+    }
+
+    .section-label {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--green);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-label::before {
+      content: '';
+      width: 24px;
+      height: 1px;
+      background: var(--green);
+      opacity: 0.5;
+    }
+
+    .section-title {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .section-title span {
+      color: var(--green);
+    }
+
+    .section-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-dim);
+      max-width: 600px;
+      line-height: 1.7;
+    }
+
+    /* ── Navigation ── */
+    .nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(6, 11, 8, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+      transition: background 0.3s ease;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo {
+      width: 36px;
+      height: 36px;
+      object-fit: contain;
+    }
+
+    .nav-wordmark {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .nav-wordmark em {
+      color: var(--green);
+      font-style: normal;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-dim);
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: color 0.2s, background 0.2s;
+      letter-spacing: 0.01em;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .nav-links a.active {
+      color: var(--green);
+    }
+
+    .nav-links .dropdown {
+      position: relative;
+    }
+
+    .nav-links .dropdown-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--green);
+      padding: 8px 14px;
+      border-radius: 8px;
+      transition: color 0.2s, background 0.2s;
+      border: none;
+      background: none;
+    }
+
+    .nav-links .dropdown-label:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .dropdown-arrow {
+      width: 12px;
+      height: 12px;
+      transition: transform 0.2s;
+    }
+
+    .dropdown:hover .dropdown-arrow {
+      transform: rotate(180deg);
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      min-width: 220px;
+      background: #0c1410;
+      border: 1px solid var(--border-green);
+      border-radius: 12px;
+      padding: 8px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.2s, visibility 0.2s, transform 0.2s;
+      transform: translateX(-50%) translateY(4px);
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+    }
+
+    .dropdown:hover .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .dropdown-menu a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    .dropdown-menu a:hover {
+      background: rgba(34, 197, 94, 0.08);
+      color: var(--green-light);
+    }
+
+    .dropdown-menu a.current {
+      background: rgba(34, 197, 94, 0.1);
+      color: var(--green);
+    }
+
+    .dropdown-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      background: rgba(34, 197, 94, 0.1);
+      flex-shrink: 0;
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 20px;
+      border-radius: 8px;
+      background: var(--green);
+      color: #060b08;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.3s;
+    }
+
+    .nav-cta:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 20px rgba(34, 197, 94, 0.3);
+    }
+
+    /* ── Mobile nav ── */
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 8px;
+      color: var(--text);
+    }
+
+    .mobile-menu-btn svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* ── Hero ── */
+    .hero {
+      position: relative;
+      min-height: 85vh;
+      display: flex;
+      align-items: flex-end;
+      overflow: hidden;
+      padding-top: 64px;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    .hero-bg-placeholder {
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(ellipse 80% 60% at 70% 30%, rgba(34, 197, 94, 0.12) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 80% at 30% 70%, rgba(34, 197, 94, 0.06) 0%, transparent 60%),
+        linear-gradient(180deg, var(--bg) 0%, #081a0e 50%, var(--bg) 100%);
+    }
+
+    .hero-gradient {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(6,11,8,0.4) 0%, transparent 30%, transparent 50%, rgba(6,11,8,0.85) 75%, var(--bg) 100%);
+      z-index: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 1080px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: end;
+    }
+
+    .hero-text {
+      padding-bottom: 16px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--green-light);
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease-out 0.2s forwards;
+    }
+
+    .hero-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green-glow);
+      animation: pulse 2.4s ease-in-out infinite;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.6rem, 7vw, 4.2rem);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease-out 0.35s forwards;
+    }
+
+    .hero h1 span {
+      color: var(--green);
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+      max-width: 480px;
+      margin-bottom: 32px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease-out 0.5s forwards;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.8s ease-out 0.65s forwards;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 12px;
+      border: none;
+      background: var(--green);
+      color: #060b08;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 24px rgba(34, 197, 94, 0.3), 0 0 60px rgba(34, 197, 94, 0.1);
+    }
+
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 40%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+      transform: skewX(-20deg);
+      transition: left 0.6s ease;
+      pointer-events: none;
+    }
+
+    .btn-primary:hover::after {
+      left: 120%;
+    }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 24px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-dim);
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+
+    .btn-ghost:hover {
+      border-color: rgba(34, 197, 94, 0.3);
+      color: var(--text);
+      background: rgba(34, 197, 94, 0.05);
+    }
+
+    .hero-screenshot {
+      opacity: 0;
+      animation: fadeUp 0.8s ease-out 0.5s forwards;
+    }
+
+    /* ── Screenshot placeholder ── */
+    .screenshot {
+      width: 100%;
+      max-width: 224px;
+      aspect-ratio: 9 / 19;
+      border-radius: 28px;
+      border: 2px solid var(--border-green);
+      background: #0a0a0f;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 0 40px rgba(34, 197, 94, 0.08), 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .screenshot img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      position: absolute;
+      top: 0;
+      left: 0;
+      border-radius: 26px;
+    }
+
+    .screenshot::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, transparent 80%, rgba(6,11,8,0.6) 100%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .screenshot-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .screenshot-wide {
+      max-width: 100%;
+      aspect-ratio: 16 / 9;
+      margin: 40px auto 0;
+    }
+
+    .screenshot-inline {
+      max-width: 240px;
+      aspect-ratio: 9 / 19;
+    }
+
+    .screenshot-row {
+      display: flex;
+      justify-content: center;
+      margin-top: 40px;
+    }
+
+    /* ── Problem section ── */
+    .problem {
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .problem-content {
+      max-width: 680px;
+    }
+
+    .problem-quote {
+      font-size: 1.15rem;
+      color: var(--text-dim);
+      line-height: 1.8;
+      margin-top: 24px;
+      padding-left: 24px;
+      border-left: 2px solid rgba(34, 197, 94, 0.3);
+      font-style: italic;
+    }
+
+    /* ── Steps section ── */
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 48px;
+    }
+
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 24px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, transform 0.2s;
+    }
+
+    .step-card:hover {
+      border-color: var(--border-green);
+      transform: translateY(-2px);
+    }
+
+    .step-number {
+      position: absolute;
+      top: -8px;
+      right: -4px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 6rem;
+      font-weight: 900;
+      color: rgba(34, 197, 94, 0.06);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .step-num-small {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--green);
+      margin-bottom: 4px;
+      line-height: 1;
+    }
+
+    .step-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+
+    .step-card h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: 0.02em;
+    }
+
+    .step-card p {
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── Drill types grid ── */
+    .drill-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 48px;
+    }
+
+    .drill-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 22px;
+      transition: border-color 0.3s, transform 0.2s, box-shadow 0.3s;
+      cursor: default;
+    }
+
+    .drill-card:hover {
+      border-color: var(--border-green);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 24px rgba(34, 197, 94, 0.06);
+    }
+
+    .drill-card-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 16px;
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.12);
+    }
+
+    .drill-card h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: 0.03em;
+    }
+
+    .drill-card p {
+      font-size: 0.82rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── Levels section ── */
+    .levels-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 48px;
+    }
+
+    .level-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px 24px;
+      text-align: center;
+      position: relative;
+      transition: border-color 0.3s, transform 0.2s;
+    }
+
+    .level-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .level-card:nth-child(1) { border-top: 2px solid var(--green); }
+    .level-card:nth-child(2) { border-top: 2px solid var(--amber); }
+    .level-card:nth-child(3) { border-top: 2px solid #ef4444; }
+
+    .level-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 14px;
+      border-radius: 100px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .level-card:nth-child(1) .level-badge {
+      background: rgba(34, 197, 94, 0.1);
+      color: var(--green);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    .level-card:nth-child(2) .level-badge {
+      background: rgba(245, 166, 35, 0.1);
+      color: var(--amber);
+      border: 1px solid rgba(245, 166, 35, 0.2);
+    }
+
+    .level-card:nth-child(3) .level-badge {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+      border: 1px solid rgba(239, 68, 68, 0.2);
+    }
+
+    .level-card h3 {
+      font-size: 1.2rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .level-card p {
+      font-size: 0.88rem;
+      color: var(--text-dim);
+      line-height: 1.65;
+    }
+
+    /* ── Gamification section ── */
+    .gamification {
+      border-top: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.01);
+    }
+
+    .gamification-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+    }
+
+    .gamification-features {
+      list-style: none;
+      margin-top: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .gamification-features li {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      font-size: 0.95rem;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .gamification-features .feat-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* ── FAQ ── */
+    .faq-section {
+      border-top: 1px solid var(--border);
+    }
+
+    .faq-list {
+      max-width: 720px;
+      margin: 48px auto 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .faq-item:hover {
+      border-color: var(--border-green);
+    }
+
+    .faq-question {
+      width: 100%;
+      padding: 20px 24px;
+      background: var(--bg-card);
+      border: none;
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      transition: background 0.2s;
+    }
+
+    .faq-question:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .faq-chevron {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
+      color: var(--text-muted);
+      transition: transform 0.3s ease, color 0.2s;
+    }
+
+    .faq-item.open .faq-chevron {
+      transform: rotate(180deg);
+      color: var(--green);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease;
+    }
+
+    .faq-answer-inner {
+      padding: 0 24px 20px;
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+
+    /* ── CTA ── */
+    .final-cta {
+      text-align: center;
+      border-top: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .final-cta::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(34, 197, 94, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .cta-title {
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 900;
+      margin-bottom: 16px;
+    }
+
+    .cta-title span {
+      color: var(--green);
+    }
+
+    .cta-subtitle {
+      font-size: 1.05rem;
+      color: var(--text-dim);
+      max-width: 480px;
+      margin: 0 auto 36px;
+      line-height: 1.6;
+    }
+
+    /* ── Footer ── */
+    .footer {
+      text-align: center;
+      padding: 40px 24px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      letter-spacing: 0.04em;
+    }
+
+    .footer a {
+      color: var(--text-dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer a:hover {
+      color: var(--green);
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 8px var(--green-glow); }
+      50% { opacity: 0.5; box-shadow: 0 0 4px rgba(34, 197, 94, 0.15); }
+    }
+
+    /* Scroll-triggered fade */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+    .reveal-delay-5 { transition-delay: 0.5s; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .hero-content {
+        grid-template-columns: 1fr;
+        padding-bottom: 60px;
+      }
+
+      .hero-screenshot {
+        display: flex;
+        justify-content: center;
+      }
+
+      .screenshot {
+        max-width: 260px;
+      }
+
+      .steps-grid,
+      .drill-grid,
+      .levels-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .gamification-layout {
+        grid-template-columns: 1fr;
+        gap: 40px;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: block; }
+
+      .section { padding: 56px 20px; }
+
+      .hero { min-height: 80vh; }
+      .hero h1 { font-size: 2.4rem; }
+      .hero-content { padding: 0 20px 48px; }
+
+      .steps-grid,
+      .drill-grid,
+      .levels-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-screenshot { order: -1; }
+      .screenshot { max-width: 200px; }
+      .screenshot-inline { max-width: 200px; }
+    }
+
+    /* ── Mobile menu overlay ── */
+    .mobile-nav {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(6, 11, 8, 0.97);
+      backdrop-filter: blur(24px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s, visibility 0.3s;
+    }
+
+    .mobile-nav.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .mobile-nav a {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-dim);
+      text-decoration: none;
+      padding: 12px 24px;
+      border-radius: 12px;
+      transition: color 0.2s;
+    }
+
+    .mobile-nav a:hover,
+    .mobile-nav a.active {
+      color: var(--green);
+    }
+
+    .mobile-nav-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      padding: 8px;
+    }
+
+    .mobile-nav-close svg {
+      width: 28px;
+      height: 28px;
+    }
+  </style>
+</head>
+<body>
+  <div class="noise"></div>
+
+  <!-- Navigation -->
+  <nav class="nav">
+    <a href="https://scoringzone.net" class="nav-left">
+      <img src="https://scoringzone.net/logo/new-log.png" alt="Scoring Zone" class="nav-logo">
+      <span class="nav-wordmark">SCORING <em>ZONE</em></span>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="https://scoringzone.net">Home</a></li>
+      <li class="dropdown">
+        <button class="dropdown-label" aria-expanded="false">
+          Platform
+          <svg class="dropdown-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="dropdown-menu">
+          <a href="https://scoringzone.net/features/chipping-drills" class="current">
+            <span class="dropdown-icon">🎯</span>
+            <span>Chipping Drills</span>
+          </a>
+          <a href="#">
+            <span class="dropdown-icon">🕳️</span>
+            <span>Putting System</span>
+          </a>
+          <a href="#">
+            <span class="dropdown-icon">🔥</span>
+            <span>Pressure Mode</span>
+          </a>
+          <a href="#">
+            <span class="dropdown-icon">📊</span>
+            <span>Progress Tracking</span>
+          </a>
+        </div>
+      </li>
+      <li><a href="https://scoringzone.net/blog/">Blog</a></li>
+    </ul>
+
+    <a href="https://scoringzone.net#signup" class="nav-cta" target="_blank" rel="noopener">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Get the App
+    </a>
+
+    <button class="mobile-menu-btn" onclick="document.getElementById('mobileNav').classList.add('open')" aria-label="Open menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </nav>
+
+  <!-- Mobile Nav Overlay -->
+  <div class="mobile-nav" id="mobileNav">
+    <button class="mobile-nav-close" onclick="document.getElementById('mobileNav').classList.remove('open')" aria-label="Close menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <a href="https://scoringzone.net">Home</a>
+    <a href="https://scoringzone.net/features/chipping-drills" class="active">Chipping Drills</a>
+    <a href="#">Putting System</a>
+    <a href="#">Pressure Mode</a>
+    <a href="https://scoringzone.net/blog/">Blog</a>
+    <a href="https://scoringzone.net#signup" target="_blank" rel="noopener" style="color: var(--green);">Get the App</a>
+  </div>
+
+  <div class="page-wrapper">
+
+    <!-- ═══════════════════════════════════════════
+         HERO
+         ═══════════════════════════════════════════ -->
+    <section class="hero">
+      <div class="hero-bg">
+        <div class="hero-bg-placeholder"></div>
+        <div class="hero-gradient"></div>
+      </div>
+      <div class="hero-content">
+        <div class="hero-text">
+          <div class="hero-badge">Chipping &amp; Wedge Practice</div>
+          <h1>Stop Practising. <span>Start Improving.</span></h1>
+          <p class="hero-subtitle" style="font-weight: 500; color: var(--text); margin-bottom: 8px;">Golf chipping drills that track every shot and show real progress.</p>
+          <p class="hero-subtitle">Scoring Zone turns short game sessions into scored challenges — so every chip counts, every session builds, and you always know if you're getting better.</p>
+          <div class="hero-actions">
+            <a href="https://scoringzone.net#signup" class="btn-primary" target="_blank" rel="noopener">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Get Scoring Zone Free
+            </a>
+            <a href="#how-it-works" class="btn-ghost">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+              See How It Works
+            </a>
+          </div>
+        </div>
+        <div class="hero-screenshot">
+          <div class="screenshot">
+            <img src="images/21-shots.jpg" alt="Scoring Zone chipping drill — 21 Points challenge">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         THE PROBLEM
+         ═══════════════════════════════════════════ -->
+    <section class="problem">
+      <div class="section reveal">
+        <div class="problem-content">
+          <div class="section-label">The Problem</div>
+          <h2 class="section-title">Your Short Game Isn't the Problem. <span>Your Practice Is.</span></h2>
+          <p class="problem-quote">
+            If you've ever searched how to get better at golf chipping and tried random YouTube tips — you already know they don't stick. Most golfers chip for hours and never improve. No structure. No targets. No feedback. Just skulls and chunks — repeated until it's time to go home.<br><br>Without a clear system, you're not practising. You're just warming up badly.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         HOW IT WORKS
+         ═══════════════════════════════════════════ -->
+    <section id="how-it-works">
+      <div class="section">
+        <div class="reveal">
+          <div class="section-label">What Performance Based Practice Looks Like</div>
+          <h2 class="section-title">A Better Way to <span>Practise Chipping</span></h2>
+          <p class="section-subtitle">Three steps. Real scores. Actual progress.</p>
+        </div>
+
+        <div class="reveal reveal-delay-1" style="max-width: 760px; margin-top: 40px;">
+          <p style="font-size: 1rem; color: var(--text-dim); line-height: 1.85; margin-bottom: 24px;">
+            Scoring Zone is built around the way golfers actually get better. Research consistently shows that performance-based practice — hitting to targets, varying distances, and measuring outcomes — develops skill faster than working on technique alone. For anyone searching how to get better at golf chipping, the answer isn't more YouTube tips — it's structured, scored short game practice drills that transfer directly to on-course performance.
+          </p>
+          <p style="font-size: 1rem; color: var(--text-dim); line-height: 1.85; margin-bottom: 24px;">
+            Dave Pelz, whose Short Game Bible remains the definitive text on the subject, makes exactly this point: data-driven, feedback-oriented practice that prioritises results over mindless mechanics is what separates improving golfers from ones who plateau. That's exactly what this golf chipping drills app does.
+          </p>
+          <p style="font-size: 1rem; color: var(--text-dim); line-height: 1.85; margin-bottom: 24px;">
+            Every drill gives you a target score to chase, which creates the kind of mild pressure that sharpens focus and mirrors real on-course situations. Instead of thinking about your wrist hinge at the top or your weight shift, you're thinking about the flag — an external focus that lets your body execute naturally, the way it does when you're playing well.
+          </p>
+          <p style="font-size: 1rem; color: var(--text-dim); line-height: 1.85;">
+            The result is golf practice that's actually fun and builds adaptable, transferable skill rather than a swing that only works on the range. Variable lies, different wedge practice drills, scored outcomes — Scoring Zone doesn't just make practice more engaging, it makes it the best way to improve your chipping and lower your scores.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         DRILL TYPES
+         ═══════════════════════════════════════════ -->
+    <section>
+      <div class="section">
+        <div class="reveal">
+          <div class="section-label">Drill Library</div>
+          <h2 class="section-title">Every Short Game Situation. <span>Covered.</span></h2>
+          <p class="section-subtitle">From tight lies to fluffy rough — covering every wedge practice drill you'll need from 10 to 80 yards.</p>
+        </div>
+
+        <div class="drill-grid">
+          <div class="drill-card reveal reveal-delay-1">
+            <div class="drill-card-icon">🏌️</div>
+            <h3>Bump &amp; Run</h3>
+            <p>Build feel for low, running chips on firm and fast greens. The shot that saves more pars than any other.</p>
+          </div>
+          <div class="drill-card reveal reveal-delay-2">
+            <div class="drill-card-icon">🪂</div>
+            <h3>Flop Shots</h3>
+            <p>Develop the touch to land the ball soft and stop it fast — over bunkers, from tight lies, to tucked back pins.</p>
+          </div>
+          <div class="drill-card reveal reveal-delay-3">
+            <div class="drill-card-icon">⛱️</div>
+            <h3>Bunker Play</h3>
+            <p>Escape with confidence every time. Scored challenges from greenside and fairway bunkers.</p>
+          </div>
+          <div class="drill-card reveal reveal-delay-1">
+            <div class="drill-card-icon">📏</div>
+            <h3>Distance Control</h3>
+            <p>Ladder drills for your 20, 40, 60, and 80-yard wedges. Dial in each distance until it's automatic.</p>
+          </div>
+          <div class="drill-card reveal reveal-delay-2">
+            <div class="drill-card-icon">🏁</div>
+            <h3>Up &amp; Down</h3>
+            <p>The ultimate scrambling test. Chip and putt from various lies, and track how often you save par.</p>
+          </div>
+          <div class="drill-card reveal reveal-delay-3">
+            <div class="drill-card-icon">🎯</div>
+            <h3>Scoring Zone Tests</h3>
+            <p>Full pressure assessments combining multiple shot types. For when you're ready to see where your game really stands.</p>
+          </div>
+        </div>
+
+        <div class="reveal reveal-delay-4 screenshot-row">
+          <div class="screenshot screenshot-inline">
+            <img src="images/challenge-complete.jpg" alt="Scoring Zone challenge complete — results and scoring">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         SKILL LEVELS
+         ═══════════════════════════════════════════ -->
+    <section>
+      <div class="section">
+        <div class="reveal">
+          <div class="section-label">For Every Level</div>
+          <h2 class="section-title">Built for Your Level. <span>Not Someone Else's.</span></h2>
+        </div>
+
+        <div class="levels-grid">
+          <div class="level-card reveal reveal-delay-1">
+            <div class="level-badge">Beginner</div>
+            <p style="font-size: 0.78rem; color: var(--green); font-style: italic; margin-bottom: 8px;">Looking for golf short game tips for beginners? Start here.</p>
+            <h3>Learn the Right Technique</h3>
+            <p>Guided drills that build grip, setup, and fundamentals from scratch — with scored checkpoints so you know what "good" actually looks like.</p>
+          </div>
+          <div class="level-card reveal reveal-delay-2">
+            <div class="level-badge">Intermediate</div>
+            <h3>Build Consistency You Can Count On</h3>
+            <p>Progressive challenges to sharpen distance control, shot selection, and the touch needed to get up and down more often.</p>
+          </div>
+          <div class="level-card reveal reveal-delay-3">
+            <div class="level-badge">Advanced</div>
+            <h3>Compete Against Yourself</h3>
+            <p>Tour-level pressure tests, timed challenges, and precision scoring. For golfers who aren't satisfied with good enough.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         GAMIFICATION
+         ═══════════════════════════════════════════ -->
+    <section class="gamification">
+      <div class="section">
+        <div class="gamification-layout">
+          <div class="reveal">
+            <div class="section-label">Gamification</div>
+            <h2 class="section-title">Practice That Feels Like <span>Playing</span></h2>
+            <p class="section-subtitle">Every session has a score. Every score has a story.</p>
+
+            <ul class="gamification-features">
+              <li>
+                <span class="feat-icon">🏆</span>
+                <span><strong style="color: var(--text);">Scored Challenges</strong> — every drill ends with a real number. Beat it next time.</span>
+              </li>
+              <li>
+                <span class="feat-icon">🔥</span>
+                <span><strong style="color: var(--text);">Streak System</strong> — build daily practice habits with visible momentum you won't want to break.</span>
+              </li>
+              <li>
+                <span class="feat-icon">⬆️</span>
+                <span><strong style="color: var(--text);">XP &amp; Levels</strong> — earn points every session. Level up. Unlock harder challenges as your game improves.</span>
+              </li>
+              <li>
+                <span class="feat-icon">📊</span>
+                <span><strong style="color: var(--text);">Benchmarks</strong> — see exactly how your scores compare to amateur and tour-level standards.</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="reveal reveal-delay-2">
+            <div class="screenshot screenshot-inline" style="margin: 0 auto;">
+              <img src="images/benchmarks.jpg" alt="Scoring Zone benchmarks and scoring system">
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         FAQ
+         ═══════════════════════════════════════════ -->
+    <section class="faq-section">
+      <div class="section">
+        <div class="reveal" style="text-align: center;">
+          <div class="section-label" style="justify-content: center;">
+            <span style="display: none;"></span>Common Questions
+          </div>
+          <h2 class="section-title" style="margin-left: auto; margin-right: auto;">Common <span>Questions</span></h2>
+        </div>
+
+        <div class="faq-list reveal reveal-delay-1">
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              How many chipping drills are there?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">The Scoring Zone chipping drills app includes a growing library covering every short game scenario — bump and run, flops, bunkers, distance control, up-and-downs, and full pressure tests. New drills are added regularly based on player feedback.</div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              Do I need any special equipment?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">Just your wedges and some balls. The app works wherever you can chip — a practice facility, short game area, or your backyard.</div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              Is it right for beginners?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">Yes. Scoring Zone starts with guided fundamentals and scales all the way to advanced pressure challenges for scratch golfers. Every level is covered.</div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              How does progress tracking work?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">Every drill in the chipping drills app is scored automatically and saved. Over time you'll see your trends, spot weaknesses, and watch your short game handicap fall — session by session.</div>
+            </div>
+          </div>
+
+          <div class="faq-item">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              Is Scoring Zone free?
+              <svg class="faq-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="faq-answer">
+              <div class="faq-answer-inner">Scoring Zone is currently in early access. Sign up to get full access to all drills and features — no payment required to get started.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         FINAL CTA
+         ═══════════════════════════════════════════ -->
+    <section class="final-cta">
+      <div class="section reveal" style="text-align: center;">
+        <h2 class="cta-title">Your Short Game <span>Won't Fix Itself.</span></h2>
+        <p class="cta-subtitle">Join golfers already chipping better with structured, scored practice. It takes one session to feel the difference.</p>
+        <a href="https://scoringzone.net#signup" class="btn-primary" target="_blank" rel="noopener" style="font-size: 1.1rem; padding: 16px 36px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Download Scoring Zone Free
+        </a>
+      </div>
+    </section>
+
+    <!-- ═══════════════════════════════════════════
+         FOOTER
+         ═══════════════════════════════════════════ -->
+    <footer class="footer">
+      <p>&copy; 2025 Scoring Zone. All rights reserved.</p>
+    </footer>
+
+  </div>
+
+  <script>
+    // ── Scroll reveal ──
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // ── FAQ toggle ──
+    function toggleFaq(btn) {
+      const item = btn.parentElement;
+      const answer = item.querySelector('.faq-answer');
+      const isOpen = item.classList.contains('open');
+
+      // Close all
+      document.querySelectorAll('.faq-item.open').forEach(openItem => {
+        openItem.classList.remove('open');
+        openItem.querySelector('.faq-answer').style.maxHeight = '0';
+      });
+
+      // Open clicked (if it was closed)
+      if (!isOpen) {
+        item.classList.add('open');
+        answer.style.maxHeight = answer.scrollHeight + 'px';
+      }
+    }
+
+    // ── Nav scroll effect ──
+    let lastScroll = 0;
+    window.addEventListener('scroll', () => {
+      const nav = document.querySelector('.nav');
+      const scroll = window.scrollY;
+      if (scroll > 100) {
+        nav.style.background = 'rgba(6, 11, 8, 0.95)';
+      } else {
+        nav.style.background = 'rgba(6, 11, 8, 0.85)';
+      }
+      lastScroll = scroll;
+    });
+  </script>
+</body>
+</html>
