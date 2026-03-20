@@ -506,7 +506,9 @@
   }
 
   .review-images {
-    width: 400px;
+    width: 48%;
+    min-width: 380px;
+    max-width: 580px;
     flex-shrink: 0;
     background: #0c0c0c;
     border-right: 1px solid var(--border);
@@ -522,11 +524,13 @@
     align-items: center;
     justify-content: center;
     background: #0a0a0a;
+    min-height: 0;
   }
   .review-main-image img {
-    max-width: 100%;
-    max-height: 100%;
+    width: 100%;
+    height: 100%;
     object-fit: contain;
+    display: block;
   }
   .review-main-label {
     position: absolute;
@@ -1279,6 +1283,187 @@
   .qchip-posting   { background: rgba(245,197,24,0.1); color: var(--gold);  border: 1px solid rgba(245,197,24,0.2); }
   .qchip-posted    { background: rgba(74,158,255,0.1); color: var(--blue);  border: 1px solid rgba(74,158,255,0.2); }
   .qchip-failed    { background: rgba(255,64,64,0.1);  color: var(--red);   border: 1px solid rgba(255,64,64,0.2); }
+
+  /* ── PERFORMANCE VIEW ────────────────────────────── */
+  .perf-container {
+    padding: 24px 26px;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+  .perf-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .learn-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+  .learn-status.active {
+    background: rgba(2,244,67,0.1);
+    color: var(--green);
+    border: 1px solid rgba(2,244,67,0.25);
+  }
+  .learn-status.warming {
+    background: rgba(245,197,24,0.1);
+    color: var(--gold);
+    border: 1px solid rgba(245,197,24,0.25);
+  }
+  .learn-status .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: currentColor;
+    animation: dot-pulse 2s ease-in-out infinite;
+  }
+  .perf-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .perf-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 16px 18px;
+  }
+  .perf-card-title {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .perf-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .perf-row:last-child { border-bottom: none; }
+  .perf-key {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--text2);
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .perf-val {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--green);
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-left: 10px;
+  }
+  .perf-bar-wrap {
+    width: 60px;
+    height: 4px;
+    background: var(--surface2);
+    border-radius: 2px;
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+  .perf-bar {
+    height: 100%;
+    background: var(--green);
+    border-radius: 2px;
+    transition: width 0.4s;
+  }
+  .perf-empty {
+    color: var(--muted);
+    font-size: 12px;
+    font-family: var(--font-mono);
+    text-align: center;
+    padding: 18px 0;
+  }
+  .weights-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-top: 4px;
+  }
+  .weight-item {
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: 5px;
+    padding: 8px 6px;
+    text-align: center;
+  }
+  .weight-label {
+    font-family: var(--font-mono);
+    font-size: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+  .weight-val {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gold);
+  }
+  .perf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+  }
+  .perf-table th {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    padding: 6px 8px;
+    text-align: left;
+    border-bottom: 1px solid var(--border2);
+  }
+  .perf-table td {
+    padding: 7px 8px;
+    border-bottom: 1px solid var(--border);
+    font-family: var(--font-mono);
+    color: var(--text2);
+  }
+  .perf-table tr:last-child td { border-bottom: none; }
+  .eng-badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+  }
+  .eng-high  { background: rgba(2,244,67,0.15);   color: var(--green); border: 1px solid rgba(2,244,67,0.3); }
+  .eng-mid   { background: rgba(245,197,24,0.12); color: var(--gold);  border: 1px solid rgba(245,197,24,0.25); }
+  .eng-low   { background: rgba(255,64,64,0.1);   color: var(--red);   border: 1px solid rgba(255,64,64,0.2); }
+  .eng-none  { background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid var(--border2); }
+  /* Engagement badge on package cards */
+  .card-eng-badge {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    padding: 2px 7px;
+    border-radius: 3px;
+    font-family: var(--font-mono);
+    font-size: 9px;
+    font-weight: 600;
+    backdrop-filter: blur(6px);
+  }
 </style>
 </head>
 <body>
@@ -1393,6 +1578,16 @@
           <path d="M13.5 8l1.5 2-2.5-.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         Research Cycles
+      </div>
+
+      <div class="nav-section-label" style="margin-top:12px">Learning</div>
+      <div class="nav-item" onclick="switchView('performance')">
+        <svg class="nav-icon" viewBox="0 0 16 16" fill="none">
+          <polyline points="1,12 5,7 8,9 12,4 15,6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="15" cy="6" r="1.2" fill="currentColor"/>
+        </svg>
+        Performance
+        <span class="nav-badge" id="nav-perf-n" style="background:rgba(162,89,255,0.18);color:var(--purple);border:1px solid rgba(162,89,255,0.35)">0</span>
       </div>
     </div>
 
@@ -1666,6 +1861,25 @@
       </div>
     </div>
 
+    <!-- PERFORMANCE VIEW -->
+    <div class="view" id="view-performance">
+      <div class="view-header">
+        <div>
+          <div class="view-title">PERFORMANCE &amp; LEARNING</div>
+          <div class="view-count" id="perf-subtitle">Loading...</div>
+        </div>
+        <button class="btn-reschedule" onclick="loadPerformance()" style="margin-left:auto;padding:7px 13px;font-size:11px">↻ Refresh</button>
+      </div>
+
+      <div class="perf-container" id="perf-container">
+        <div class="empty-state">
+          <div class="empty-icon">📊</div>
+          <div class="empty-title">No Data Yet</div>
+          <div class="empty-desc">Post content and fetch metrics to start the learning loop.</div>
+        </div>
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -1793,6 +2007,9 @@ function renderPackages() {
   grid.innerHTML = pkgs.map(p => {
     const img = p.images?.[0] ? `<img src="/api/packages/${p.id}/image/${encodeURIComponent(p.images[0])}" loading="lazy" alt="">` : '<div style="width:100%;height:100%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#333;font-size:24px">◎</div>';
     const score = p.score ? `<div class="card-score">${p.score.toFixed(1)}</div>` : '';
+    const engScore = p.engagement_score != null
+      ? `<div class="card-eng-badge ${p.engagement_score >= 60 ? 'eng-high' : p.engagement_score >= 30 ? 'eng-mid' : 'eng-low'}">ENG ${p.engagement_score.toFixed(1)}</div>`
+      : '';
     const igPosted = p.posted_instagram_at ? '<span class="platform-pill pill-posted">IG ✓</span>' : '<span class="platform-pill pill-ig">IG</span>';
     const fbPosted = p.posted_facebook_at  ? '<span class="platform-pill pill-posted">FB ✓</span>' : '<span class="platform-pill pill-fb">FB</span>';
     const xPosted  = p.posted_x_at         ? '<span class="platform-pill pill-posted">X ✓</span>'  : '<span class="platform-pill pill-x">X</span>';
@@ -1804,7 +2021,7 @@ function renderPackages() {
     const cardClass     = isScheduled ? `${p.status} scheduled` : p.status;
 
     return `<div class="package-card ${cardClass}" onclick="openReview('${p.id}')">
-      <div class="card-image">${img}${score}<span class="card-status-badge status-${displayStatus}">${badgeLabel}</span></div>
+      <div class="card-image">${img}${score}${engScore}<span class="card-status-badge status-${displayStatus}">${badgeLabel}</span></div>
       <div class="card-body">
         <div class="card-topic">${formatTopic(p.topic || p.id)}</div>
         <div class="card-meta">
@@ -2505,6 +2722,181 @@ async function cancelScheduled(packageId) {
   }
 }
 
+// ─── Performance view ─────────────────────────────────────────────────────
+async function loadPerformance() {
+  const container = document.getElementById('perf-container');
+  const subtitle  = document.getElementById('perf-subtitle');
+
+  let data;
+  try {
+    data = await api('/performance');
+  } catch (e) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠</div><div class="empty-title">Load Error</div><div class="empty-desc">${escHtml(String(e))}</div></div>`;
+    return;
+  }
+
+  const n         = data.n || 0;
+  const threshold = data.threshold || 10;
+  const ready     = data.ready || false;
+
+  document.getElementById('nav-perf-n').textContent = n;
+  subtitle.textContent = `${n} post${n !== 1 ? 's' : ''} with metrics · ${ready ? 'Learning ACTIVE' : `${threshold - n} more to activate learning`}`;
+
+  if (n === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📊</div><div class="empty-title">No Data Yet</div><div class="empty-desc">Post content and wait 24h for metrics to populate.</div></div>`;
+    return;
+  }
+
+  let html = `<div class="perf-header">
+    <div>
+      <div style="font-family:var(--font-display);font-size:22px;letter-spacing:0.08em;color:var(--text)">LEARNING LOOP</div>
+      <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted);margin-top:3px">${n} posts analysed · avg engagement <span style="color:var(--green)">${data.avg_engagement ?? '—'}</span></div>
+    </div>
+    <div class="learn-status ${ready ? 'active' : 'warming'}">
+      <div class="dot"></div>
+      ${ready ? 'LEARNING ACTIVE' : `WARMING UP ${n}/${threshold}`}
+    </div>
+  </div>`;
+
+  // ── Scorer weights ──────────────────────────────────────────────────────
+  const defaultWeights = {views:0.35, trend:0.30, likes:0.15, volume:0.10, direction:0.10};
+  let weightsData = defaultWeights;
+  let weightsLabel = 'DEFAULT WEIGHTS';
+  if (data.learned_weights_active) {
+    weightsLabel = 'LEARNED WEIGHTS (ACTIVE)';
+  }
+  html += `<div class="perf-card">
+    <div class="perf-card-title">${weightsLabel}</div>
+    <div class="weights-grid">
+      ${Object.entries(defaultWeights).map(([k]) => {
+        const v = weightsData[k] || 0;
+        return `<div class="weight-item">
+          <div class="weight-label">${k}</div>
+          <div class="weight-val">${Math.round(v*100)}%</div>
+        </div>`;
+      }).join('')}
+    </div>
+  </div>`;
+
+  html += `<div class="perf-grid">`;
+
+  // ── Top keywords ──────────────────────────────────────────────────────
+  const kws = data.top_keywords || [];
+  if (kws.length) {
+    const maxEng = Math.max(...kws.map(([,v]) => v.avg_engagement || 0), 1);
+    html += `<div class="perf-card">
+      <div class="perf-card-title">TOP KEYWORDS</div>
+      ${kws.map(([kw, v]) => `
+        <div class="perf-row">
+          <span class="perf-key">${escHtml(kw)}</span>
+          <div class="perf-bar-wrap"><div class="perf-bar" style="width:${Math.round((v.avg_engagement/maxEng)*100)}%"></div></div>
+          <span class="perf-val">${v.avg_engagement}</span>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  // ── Caption templates ─────────────────────────────────────────────────
+  const templates = data.templates || {};
+  const tplEntries = Object.entries(templates).sort((a,b) => b[1].avg_engagement - a[1].avg_engagement);
+  if (tplEntries.length) {
+    const maxTpl = Math.max(...tplEntries.map(([,v]) => v.avg_engagement || 0), 1);
+    html += `<div class="perf-card">
+      <div class="perf-card-title">CAPTION TEMPLATES ${data.caption_perf_active ? '· <span style="color:var(--green)">ACTIVE</span>' : ''}</div>
+      ${tplEntries.map(([k, v]) => `
+        <div class="perf-row">
+          <span class="perf-key">${escHtml(k)}</span>
+          <span style="font-family:var(--font-mono);font-size:9px;color:var(--muted);margin-left:6px">n=${v.n}</span>
+          <div class="perf-bar-wrap"><div class="perf-bar" style="width:${Math.round((v.avg_engagement/maxTpl)*100)}%"></div></div>
+          <span class="perf-val">${v.avg_engagement}</span>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  // ── Image variants ────────────────────────────────────────────────────
+  const variants = data.variants || {};
+  const preferred = variants.preferred_variant;
+  const variantNames = {1: 'Monumental', 2: 'Data Readout', 3: 'Precision Scope'};
+  const varEntries = Object.entries(variants).filter(([k]) => !isNaN(parseInt(k)));
+  if (varEntries.length) {
+    const maxVar = Math.max(...varEntries.map(([,v]) => v.avg_engagement || 0), 1);
+    html += `<div class="perf-card">
+      <div class="perf-card-title">IMAGE VARIANTS ${data.variant_perf_active ? '· <span style="color:var(--green)">ACTIVE</span>' : ''}</div>
+      ${varEntries.map(([k, v]) => `
+        <div class="perf-row">
+          <span class="perf-key">#${k} ${variantNames[parseInt(k)] || ''} ${parseInt(k) === preferred ? '★' : ''}</span>
+          <div class="perf-bar-wrap"><div class="perf-bar" style="width:${Math.round((v.avg_engagement/maxVar)*100)}%"></div></div>
+          <span class="perf-val">${v.avg_engagement}</span>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  // ── Best posting times ────────────────────────────────────────────────
+  const times = data.posting_times || {};
+  const timeEntries = Object.entries(times).slice(0, 5);
+  if (timeEntries.length) {
+    const maxTime = Math.max(...timeEntries.map(([,v]) => v.avg_engagement || 0), 1);
+    html += `<div class="perf-card">
+      <div class="perf-card-title">BEST POSTING HOURS (UTC)</div>
+      ${timeEntries.map(([h, v]) => `
+        <div class="perf-row">
+          <span class="perf-key">${String(h).padStart(2,'0')}:00 UTC</span>
+          <div class="perf-bar-wrap"><div class="perf-bar" style="width:${Math.round((v.avg_engagement/maxTime)*100)}%"></div></div>
+          <span class="perf-val">${v.avg_engagement}</span>
+        </div>`).join('')}
+    </div>`;
+  }
+
+  html += `</div>`;  // close perf-grid
+
+  // ── Per-package engagement table ──────────────────────────────────────
+  const pkgs = data.packages_with_metrics || [];
+  if (pkgs.length) {
+    html += `<div class="perf-card" style="overflow-x:auto">
+      <div class="perf-card-title">PACKAGE ENGAGEMENT DETAIL</div>
+      <table class="perf-table">
+        <thead><tr>
+          <th>Package</th>
+          <th>Eng Score</th>
+          <th>IG Saves</th>
+          <th>IG Reach</th>
+          <th>X Likes</th>
+          <th>Variant</th>
+          <th>Fetched</th>
+          <th></th>
+        </tr></thead>
+        <tbody>
+          ${pkgs.map(p => {
+            const eng = p.engagement_score;
+            const cls = eng >= 60 ? 'eng-high' : eng >= 30 ? 'eng-mid' : 'eng-low';
+            const fetched = p.metrics_fetched_at ? new Date(p.metrics_fetched_at).toLocaleDateString() : '—';
+            return `<tr>
+              <td style="color:var(--text);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(p.package_id)}</td>
+              <td><span class="eng-badge ${cls}">${eng?.toFixed(1) ?? '—'}</span></td>
+              <td>${p.ig_saves ?? '—'}</td>
+              <td>${p.ig_reach ?? '—'}</td>
+              <td>${p.x_likes ?? '—'}</td>
+              <td>${p.image_variant_used ? `#${p.image_variant_used}` : '—'}</td>
+              <td>${fetched}</td>
+              <td><button onclick="fetchMetrics('${escHtml(p.package_id)}')" style="font-size:10px;padding:3px 8px;background:var(--surface2);border:1px solid var(--border2);color:var(--text2);border-radius:3px;cursor:pointer">↻</button></td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+async function fetchMetrics(packageId) {
+  const result = await api(`/fetch-metrics/${packageId}`, { method: 'POST' });
+  if (result.success) {
+    toast('Metric fetch started — check back shortly', 'info');
+  } else {
+    toast('Metric fetch failed', 'error');
+  }
+}
+
 // ─── Navigation ───────────────────────────────────────────────────────────
 function switchView(view, filter) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -2518,6 +2910,9 @@ function switchView(view, filter) {
   } else if (view === 'scheduler') {
     document.querySelector('.nav-item[onclick*="scheduler"]')?.classList.add('active');
     loadSchedulerQueue();
+  } else if (view === 'performance') {
+    document.querySelector('.nav-item[onclick*="performance"]')?.classList.add('active');
+    loadPerformance();
   } else if (filter === 'scheduled') {
     document.querySelector('.nav-item[data-filter="scheduled"]')?.classList.add('active');
   } else if (filter === 'pending') {

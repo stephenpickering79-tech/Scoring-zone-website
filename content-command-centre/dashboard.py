@@ -30,8 +30,12 @@ from zoneinfo import ZoneInfo
 
 from flask import Flask, jsonify, request, send_file, send_from_directory, abort
 
+import re
+
 import config
 from poster import InstagramPoster, XPoster, FacebookPoster
+from performance_tracker import fetch_all_pending_metrics, fetch_metrics_for_package
+from performance_analyser import get_analysis_summary
 
 # ─────────────────────────────────────────────────────────────────────────────
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s — %(message)s")
@@ -42,9 +46,15 @@ app = Flask(__name__, static_folder=None)
 PACKAGES_DIR = config.PACKAGES_DIR
 DB_PATH      = os.path.join(config.BASE_DIR, "post_status.db")
 
-instagram      = InstagramPoster()
-x_poster       = XPoster()
+instagram       = InstagramPoster()
+x_poster        = XPoster()
 facebook_poster = FacebookPoster()
+
+
+def _extract_variant_num(filename: str) -> int | None:
+    """Extract the variant number (1/2/3) from an image filename like 'image_02.jpg'."""
+    m = re.search(r"image_0*(\d+)", filename or "")
+    return int(m.group(1)) if m else None
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Database
@@ -86,6 +96,26 @@ def init_db():
             ("scheduled_for",      "TEXT"),   # ISO UTC timestamp when to auto-post
             ("schedule_status",    "TEXT"),   # NULL | 'scheduled' | 'posting' | 'posted' | 'failed'
             ("schedule_error",     "TEXT"),   # Last scheduler error message
+            # ── Engagement metrics (populated by performance_tracker.py) ──────
+            ("ig_reach",           "INTEGER"),
+            ("ig_impressions",     "INTEGER"),
+            ("ig_likes_post",      "INTEGER"),
+            ("ig_comments",        "INTEGER"),
+            ("ig_saves",           "INTEGER"),
+            ("ig_shares",          "INTEGER"),
+            ("fb_reach",           "INTEGER"),
+            ("fb_reactions",       "INTEGER"),
+            ("fb_comments",        "INTEGER"),
+            ("fb_shares",          "INTEGER"),
+            ("x_impressions",      "INTEGER"),
+            ("x_likes",            "INTEGER"),
+            ("x_retweets",         "INTEGER"),
+            ("x_replies",          "INTEGER"),
+            ("x_bookmarks",        "INTEGER"),
+            ("engagement_score",   "REAL"),    # normalised 0-100 composite
+            ("metrics_fetched_at", "TEXT"),    # ISO timestamp of last fetch
+            ("image_variant_used", "INTEGER"), # which image variant (1/2/3) was posted
+            ("caption_template",   "TEXT"),    # which hook/body template was used
         ]:
             try:
                 db.execute(f"ALTER TABLE post_status ADD COLUMN {col} {definition}")
@@ -220,10 +250,11 @@ def _post_package_to_all(package_id: str):
             status.get("caption_instagram") or pkg["ig_caption"],
         )
         if ig_result["success"]:
+            variant_num = _extract_variant_num(ig_img)
             with get_db() as db:
                 db.execute(
-                    "UPDATE post_status SET instagram_post_id=?, posted_instagram_at=? WHERE package_id=?",
-                    (ig_result["post_id"], datetime.utcnow().isoformat(), package_id),
+                    "UPDATE post_status SET instagram_post_id=?, posted_instagram_at=?, image_variant_used=COALESCE(image_variant_used,?) WHERE package_id=?",
+                    (ig_result["post_id"], datetime.utcnow().isoformat(), variant_num, package_id),
                 )
                 db.commit()
             logger.info(f"  Scheduled post: Instagram OK ({ig_result['post_id']})")
@@ -293,12 +324,20 @@ def _post_package_to_all(package_id: str):
     logger.info(f"  Scheduled post complete: {package_id} → {final_status}")
 
 
+_last_metrics_check: datetime | None = None
+METRICS_CHECK_INTERVAL_SECONDS = 3600  # hourly
+
+
 def _scheduler_loop():
-    """Background thread: fire scheduled posts when their time arrives."""
+    """Background thread: fire scheduled posts when their time arrives,
+    and trigger engagement metric fetches hourly."""
+    global _last_metrics_check
     logger.info("Scheduler thread started (UAE UTC+4 optimal slots)")
     while True:
         try:
             now_utc = datetime.now(timezone.utc)
+
+            # ── Fire due scheduled posts ──────────────────────────────────
             with get_db() as db:
                 due = db.execute(
                     """SELECT package_id FROM post_status
@@ -311,14 +350,12 @@ def _scheduler_loop():
             for row in due:
                 pkg_id = row["package_id"]
                 logger.info(f"Scheduler: firing post for {pkg_id}")
-                # Mark as 'posting' to prevent double-fire
                 with get_db() as db:
                     db.execute(
                         "UPDATE post_status SET schedule_status='posting' WHERE package_id=?",
                         (pkg_id,),
                     )
                     db.commit()
-                # Post in a separate thread to avoid blocking the loop
                 threading.Thread(
                     target=_post_package_to_all,
                     args=(pkg_id,),
@@ -326,10 +363,32 @@ def _scheduler_loop():
                     name=f"auto-post-{pkg_id}",
                 ).start()
 
+            # ── Hourly metrics fetch ──────────────────────────────────────
+            if (
+                _last_metrics_check is None
+                or (now_utc - _last_metrics_check).total_seconds() >= METRICS_CHECK_INTERVAL_SECONDS
+            ):
+                _last_metrics_check = now_utc
+                threading.Thread(
+                    target=_run_metrics_fetch_background,
+                    daemon=True,
+                    name="metrics-fetch",
+                ).start()
+
         except Exception as exc:
             logger.error(f"Scheduler loop error: {exc}")
 
         time_module.sleep(30)   # Poll every 30 seconds
+
+
+def _run_metrics_fetch_background():
+    """Run fetch_all_pending_metrics() in a background thread."""
+    try:
+        n = fetch_all_pending_metrics()
+        if n:
+            logger.info(f"[metrics] Updated {n} package(s)")
+    except Exception as exc:
+        logger.error(f"[metrics] Background fetch error: {exc}")
 
 
 # Scheduler thread is started after init_db() in the __main__ block below
@@ -480,6 +539,8 @@ def api_packages():
         pkg["scheduled_for"]       = status.get("scheduled_for")
         pkg["schedule_status"]     = status.get("schedule_status")
         pkg["schedule_error"]      = status.get("schedule_error")
+        pkg["engagement_score"]    = status.get("engagement_score")
+        pkg["metrics_fetched_at"]  = status.get("metrics_fetched_at")
         # Generate UAE display string for scheduled time
         if pkg["scheduled_for"]:
             try:
@@ -824,13 +885,15 @@ def api_post_instagram(package_id):
     result = instagram.post(image_path, caption)
 
     if result["success"]:
+        variant_num = _extract_variant_num(image_file)
         with get_db() as db:
             db.execute("""
                 UPDATE post_status
                 SET instagram_post_id = ?,
-                    posted_instagram_at = ?
+                    posted_instagram_at = ?,
+                    image_variant_used = COALESCE(image_variant_used, ?)
                 WHERE package_id = ?
-            """, (result["post_id"], datetime.utcnow().isoformat(), package_id))
+            """, (result["post_id"], datetime.utcnow().isoformat(), variant_num, package_id))
             db.commit()
 
     return jsonify(result)
@@ -865,13 +928,15 @@ def api_post_x(package_id):
     result = x_poster.post(image_path, caption)
 
     if result["success"]:
+        variant_num = _extract_variant_num(image_file)
         with get_db() as db:
             db.execute("""
                 UPDATE post_status
                 SET x_post_id = ?,
-                    posted_x_at = ?
+                    posted_x_at = ?,
+                    image_variant_used = COALESCE(image_variant_used, ?)
                 WHERE package_id = ?
-            """, (result["post_id"], datetime.utcnow().isoformat(), package_id))
+            """, (result["post_id"], datetime.utcnow().isoformat(), variant_num, package_id))
             db.commit()
 
     return jsonify(result)
@@ -907,16 +972,67 @@ def api_post_facebook(package_id):
     result = facebook_poster.post(image_path, caption)
 
     if result["success"]:
+        variant_num = _extract_variant_num(image_file)
         with get_db() as db:
             db.execute("""
                 UPDATE post_status
                 SET facebook_post_id = ?,
-                    posted_facebook_at = ?
+                    posted_facebook_at = ?,
+                    image_variant_used = COALESCE(image_variant_used, ?)
                 WHERE package_id = ?
-            """, (result["post_id"], datetime.utcnow().isoformat(), package_id))
+            """, (result["post_id"], datetime.utcnow().isoformat(), variant_num, package_id))
             db.commit()
 
     return jsonify(result)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Performance / Learning API
+# ─────────────────────────────────────────────────────────────────────────────
+
+@app.route("/api/performance")
+def api_performance():
+    """Return aggregate engagement stats and learning state for the dashboard."""
+    try:
+        summary = get_analysis_summary()
+    except Exception as exc:
+        logger.error(f"Performance summary error: {exc}")
+        summary = {"n": 0, "ready": False, "error": str(exc)}
+
+    # Enrich each package with engagement_score for the package list
+    with get_db() as db:
+        rows = db.execute(
+            """SELECT package_id, engagement_score, metrics_fetched_at,
+                      ig_reach, ig_impressions, ig_likes_post, ig_saves, ig_shares,
+                      fb_reactions, fb_shares, x_likes, x_retweets, x_bookmarks,
+                      image_variant_used, caption_template
+               FROM post_status
+               WHERE engagement_score IS NOT NULL
+               ORDER BY engagement_score DESC
+            """
+        ).fetchall()
+    summary["packages_with_metrics"] = [dict(r) for r in rows]
+
+    return jsonify(summary)
+
+
+@app.route("/api/fetch-metrics/<package_id>", methods=["POST"])
+def api_fetch_metrics(package_id):
+    """Manually trigger metric fetch for a specific package."""
+    threading.Thread(
+        target=_fetch_metrics_single,
+        args=(package_id,),
+        daemon=True,
+        name=f"metrics-{package_id}",
+    ).start()
+    return jsonify({"success": True, "message": "Metric fetch started"})
+
+
+def _fetch_metrics_single(package_id: str):
+    try:
+        fetch_metrics_for_package(package_id)
+    except Exception as exc:
+        logger.error(f"[metrics] Single fetch error ({package_id}): {exc}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -1035,6 +1151,93 @@ def api_cycles():
             "SELECT * FROM cycle_runs ORDER BY id DESC LIMIT 20"
         ).fetchall()
     return jsonify([dict(r) for r in rows])
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Variant Preview
+# ─────────────────────────────────────────────────────────────────────────────
+
+_VARIANT_PREVIEW_DIR = os.path.join(config.BASE_DIR, "_variant_preview")
+
+@app.route("/preview-variants")
+def preview_variants():
+    """Generate and serve a live preview of all 8 image variants."""
+    import importlib
+    import media_processor
+    importlib.reload(media_processor)
+
+    os.makedirs(_VARIANT_PREVIEW_DIR, exist_ok=True)
+    topic = request.args.get("topic", "Golf Putting Tips")
+    score = float(request.args.get("score", "78"))
+    trend = request.args.get("trend", "rising")
+
+    media_processor.generate_images(
+        topic=topic,
+        opportunity_score=score,
+        trend_direction=trend,
+        output_folder=_VARIANT_PREVIEW_DIR,
+        n_variants=8,
+        rotation_seed="preview",
+    )
+
+    variant_names = [
+        "Neon Gradient", "Data Readout", "Corner Box", "Split Screen",
+        "Exposed", "Banner Stack", "Quote Pull", "Leaderboard",
+    ]
+
+    cards = ""
+    for i, name in enumerate(variant_names, 1):
+        cards += f"""
+        <div class="card">
+          <img src="/preview-variants/image/image_{i:02d}.jpg?t={int(time_module.time())}" loading="lazy">
+          <div class="label"><span class="num">{i:02d}</span> {name}</div>
+        </div>"""
+
+    html = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Variant Preview — {topic}</title>
+<style>
+  * {{ margin:0; padding:0; box-sizing:border-box; }}
+  body {{ background:#060806; font-family:'Courier New',monospace; color:#00ed04; padding:32px; }}
+  h1 {{ font-size:12px; letter-spacing:4px; text-transform:uppercase; margin-bottom:8px; opacity:.45; }}
+  .meta {{ font-size:11px; opacity:.3; margin-bottom:28px; letter-spacing:2px; }}
+  .grid {{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; }}
+  .card {{ display:flex; flex-direction:column; gap:8px; }}
+  .card img {{ width:100%; aspect-ratio:1; object-fit:cover; display:block; border:1px solid rgba(0,237,4,.12); }}
+  .label {{ font-size:11px; letter-spacing:2px; text-transform:uppercase; opacity:.55; }}
+  .num {{ font-size:20px; font-weight:bold; color:#00ed04; margin-right:6px; }}
+  form {{ margin-bottom:24px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; }}
+  input {{ background:#0a100a; border:1px solid rgba(0,237,4,.3); color:#00ed04;
+           font-family:inherit; font-size:12px; padding:6px 12px; letter-spacing:1px; }}
+  button {{ background:#00ed04; color:#000; font-family:inherit; font-size:12px;
+            letter-spacing:2px; padding:7px 20px; border:none; cursor:pointer; font-weight:bold; }}
+  @media(max-width:900px){{ .grid{{ grid-template-columns:repeat(2,1fr); }} }}
+</style>
+</head>
+<body>
+<h1>Scoring Zone · Image Variants</h1>
+<form method="GET">
+  <input name="topic" value="{topic}" placeholder="Topic" style="width:240px">
+  <input name="score" value="{score:.0f}" placeholder="Score" style="width:80px">
+  <select name="trend" style="background:#0a100a;border:1px solid rgba(0,237,4,.3);color:#00ed04;font-family:inherit;font-size:12px;padding:6px 12px;">
+    <option value="rising" {"selected" if trend=="rising" else ""}>Rising</option>
+    <option value="steady" {"selected" if trend=="steady" else ""}>Steady</option>
+    <option value="falling" {"selected" if trend=="falling" else ""}>Falling</option>
+  </select>
+  <button type="submit">REGENERATE</button>
+</form>
+<p class="meta">Topic: {topic.upper()} &nbsp;·&nbsp; Score: {score:.0f} &nbsp;·&nbsp; Trend: {trend.upper()}</p>
+<div class="grid">{cards}</div>
+</body>
+</html>"""
+    return html, 200, {"Content-Type": "text/html"}
+
+
+@app.route("/preview-variants/image/<filename>")
+def preview_variant_image(filename):
+    return send_from_directory(_VARIANT_PREVIEW_DIR, filename)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
