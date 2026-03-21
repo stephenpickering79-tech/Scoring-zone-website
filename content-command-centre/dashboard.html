@@ -2017,7 +2017,9 @@ function renderPage(grid) {
   }
 
   const cards = pkgs.map(p => {
-    const img = p.images?.[0] ? `<img src="/api/packages/${p.id}/image/${encodeURIComponent(p.images[0])}" loading="lazy" alt="">` : '<div style="width:100%;height:100%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#333;font-size:24px">◎</div>';
+    // Prefer image_02 (V2 — rings/scope design) as card thumbnail, fall back to first available
+    const thumbImg = p.images?.find(i => i.includes('image_02')) || p.images?.[0];
+    const img = thumbImg ? `<img src="/api/packages/${p.id}/image/${encodeURIComponent(thumbImg)}" loading="lazy" alt="">` : '<div style="width:100%;height:100%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#333;font-size:24px">◎</div>';
     const score = p.score ? `<div class="card-score">${p.score.toFixed(1)}</div>` : '';
     const engScore = p.engagement_score != null
       ? `<div class="card-eng-badge ${p.engagement_score >= 60 ? 'eng-high' : p.engagement_score >= 30 ? 'eng-mid' : 'eng-low'}">ENG ${p.engagement_score.toFixed(1)}</div>`
