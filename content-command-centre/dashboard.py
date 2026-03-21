@@ -647,7 +647,15 @@ def api_reject(package_id):
             (package_id,)
         )
         db.commit()
-    return jsonify({"success": True, "status": "rejected"})
+
+    # Delete the package folder from disk
+    import shutil
+    folder = os.path.join(PACKAGES_DIR, package_id)
+    if os.path.isdir(folder):
+        shutil.rmtree(folder, ignore_errors=True)
+        logger.info(f"Deleted rejected package folder: {folder}")
+
+    return jsonify({"success": True, "status": "rejected", "deleted": True})
 
 
 @app.route("/api/packages/<package_id>/caption", methods=["PUT"])
