@@ -937,9 +937,9 @@ def _variant_data_readout(
         y += 42
 
     # ── Opportunity score — right column (hidden when placeholder) ──
+    oc_label = _fnt(GEIST_R, 18)
     if opportunity_score > 30:
         oc_font  = _fnt(BARLOW_XB, 52)
-        oc_label = _fnt(GEIST_R, 18)
         draw.text((W - 200, sep_y + 28), f"{opportunity_score:.0f}", fill=(*GREEN, 255), font=oc_font)
         draw.text((W - 200, sep_y + 84), "SCORE/100", fill=(*TEXT_GHOST, 255), font=oc_label)
     sym = {"rising": "↑ RISING", "falling": "↓ FALLING"}.get(trend_direction, "→ STEADY")
