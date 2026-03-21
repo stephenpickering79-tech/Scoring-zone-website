@@ -398,7 +398,7 @@ def build_package(
         opportunity_score=opp.opportunity_score,
         trend_direction=opp.trend_direction,
         output_folder=folder,
-        n_variants=8,
+        n_variants=3,
     )
 
     # ── Captions ──
@@ -430,7 +430,7 @@ def build_package(
         "top_video_id":      opp.top_video_id,
         "top_channel":       opp.top_channel,
         "cycle_number":      cycle_number,
-        "image_count":       8,
+        "image_count":       3,
         "caption_template":  caption_template,
         "preferred_variant": preferred_variant,
         "created_at":        datetime.utcnow().isoformat(),
