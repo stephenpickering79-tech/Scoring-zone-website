@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>ScoringZone — Drill Explainer: Lag King</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+    background: #050505;
+    position: relative;
+  }
+
+  .bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 70% at 80% 30%, rgba(110, 60, 200, 0.1) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 10% 90%, rgba(0, 237, 4, 0.06) 0%, transparent 50%);
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+  }
+
+  /* Hero intro banner */
+  .intro-banner {
+    background: linear-gradient(135deg, rgba(0,237,4,0.1) 0%, rgba(0,237,4,0.03) 100%);
+    border-bottom: 1px solid rgba(0,237,4,0.15);
+    padding: 32px 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .intro-left {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .intro-eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #00ed04;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .intro-eyebrow::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: #00ed04;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(0,237,4,0.6);
+  }
+
+  .intro-headline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 42px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #fff;
+    line-height: 1;
+  }
+  .intro-headline em {
+    font-style: normal;
+    color: #00ed04;
+  }
+
+  .intro-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .app-icon {
+    width: 44px;
+    height: 44px;
+    border: 2px solid #00ed04;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,237,4,0.06);
+    position: relative;
+  }
+  .app-icon::after {
+    content: '◎';
+    color: #00ed04;
+    font-size: 20px;
+  }
+
+  .app-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* Main content */
+  .main {
+    flex: 1;
+    padding: 32px 60px 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Drill header */
+  .drill-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .drill-badge {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .drill-icon {
+    width: 50px;
+    height: 50px;
+    border: 2px solid rgba(110,60,200,0.6);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(110,60,200,0.1);
+  }
+  .drill-icon::after {
+    content: '◎';
+    color: #a259ff;
+    font-size: 22px;
+  }
+
+  .drill-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .drill-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 40px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #fff;
+  }
+
+  .drill-meta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .drill-category {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #a259ff;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .drill-time {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.06em;
+  }
+
+  .xp-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    color: #f5c518;
+    background: rgba(245,197,24,0.08);
+    border: 1px solid rgba(245,197,24,0.2);
+    padding: 6px 14px;
+    border-radius: 4px;
+    letter-spacing: 0.06em;
+  }
+
+  /* Purpose */
+  .purpose {
+    font-size: 22px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.5;
+    margin-bottom: 28px;
+    max-width: 750px;
+  }
+  .purpose strong {
+    color: #fff;
+    font-weight: 600;
+  }
+
+  /* Steps */
+  .steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    flex: 1;
+  }
+
+  .step {
+    display: flex;
+    gap: 20px;
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    align-items: flex-start;
+  }
+  .step:last-child { border-bottom: none; }
+
+  .step-num {
+    width: 40px;
+    height: 40px;
+    background: rgba(0,237,4,0.08);
+    border: 1px solid rgba(0,237,4,0.25);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    color: #00ed04;
+    flex-shrink: 0;
+  }
+
+  .step-content { flex: 1; }
+
+  .step-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 26px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #fff;
+    margin-bottom: 3px;
+  }
+
+  .step-desc {
+    font-size: 18px;
+    color: rgba(255,255,255,0.38);
+    line-height: 1.45;
+  }
+
+  .step-highlight {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: #00ed04;
+    background: rgba(0,237,4,0.06);
+    border: 1px solid rgba(0,237,4,0.15);
+    padding: 3px 10px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-top: 6px;
+    letter-spacing: 0.04em;
+  }
+
+  /* Benchmark bar */
+  .benchmark {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: auto;
+    margin-bottom: 8px;
+  }
+
+  .benchmark-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .benchmark-levels {
+    display: flex;
+    gap: 24px;
+  }
+
+  .bm-level { text-align: center; }
+
+  .bm-score {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 32px;
+    line-height: 1;
+  }
+  .bm-score.tour { color: #f5c518; }
+  .bm-score.pro { color: #a259ff; }
+  .bm-score.amateur { color: #00ed04; }
+
+  .bm-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 3px;
+  }
+
+  /* Bottom bar */
+  .bottom-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 60px 40px;
+    border-top: 1px solid rgba(0,237,4,0.1);
+  }
+
+  .brand-lockup {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-icon {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #00ed04;
+    border-radius: 50%;
+    position: relative;
+  }
+  .brand-icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 7px;
+    height: 7px;
+    background: #00ed04;
+    border-radius: 50%;
+  }
+
+  .brand-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .cta-text {
+    font-size: 14px;
+    font-weight: 600;
+    color: #00ed04;
+  }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="content">
+
+    <!-- Intro banner — tells new users what this is -->
+    <div class="intro-banner">
+      <div class="intro-left">
+        <div class="intro-eyebrow">Inside the app</div>
+        <div class="intro-headline">Here's a drill from <em>Scoring Zone</em></div>
+      </div>
+      <div class="intro-right">
+        <div class="app-icon"></div>
+        <div class="app-label">Performance based<br>golf app</div>
+      </div>
+    </div>
+
+    <div class="main">
+      <div class="drill-header">
+        <div class="drill-badge">
+          <div class="drill-icon"></div>
+          <div class="drill-info">
+            <div class="drill-name">Lag King</div>
+            <div class="drill-meta">
+              <div class="drill-category">Speed Control · Putting</div>
+              <div class="drill-time">10 min · Medium</div>
+            </div>
+          </div>
+        </div>
+        <div class="xp-badge">★ 50 XP</div>
+      </div>
+
+      <div class="purpose">
+        Eliminate 3-putts by training <strong>distance control from 30+ feet</strong>. Focus on speed, not line — every putt must finish within 3 feet.
+      </div>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <div class="step-title">Set up from 30+ feet</div>
+            <div class="step-desc">Find a long putt on the practice green. Place 10 balls at 30, 35, and 40 feet from the hole.</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <div class="step-title">Hit 10 lag putts</div>
+            <div class="step-desc">Focus purely on speed. Your only target: leave every ball within a 3-foot circle of the hole.</div>
+            <div class="step-highlight">Speed over line — always</div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <div class="step-title">Score it & beat your benchmark</div>
+            <div class="step-desc">Log your score in the app. Scoring Zone compares you against handicap benchmarks and tracks progress across sessions.</div>
+            <div class="step-highlight">Score 8/10 → Under 5 HCP level</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="benchmark">
+        <div class="benchmark-label">Benchmark levels</div>
+        <div class="benchmark-levels">
+          <div class="bm-level">
+            <div class="bm-score tour">10/10</div>
+            <div class="bm-tag">Tour Pro</div>
+          </div>
+          <div class="bm-level">
+            <div class="bm-score pro">8/10</div>
+            <div class="bm-tag">Under 5</div>
+          </div>
+          <div class="bm-level">
+            <div class="bm-score amateur">6/10</div>
+            <div class="bm-tag">Under 10</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="brand-lockup">
+        <div class="brand-icon"></div>
+        <div class="brand-name">Scoring Zone</div>
+      </div>
+      <div class="cta-text">Free early access → scoringzone.net</div>
+    </div>
+  </div>
+</body>
+</html>

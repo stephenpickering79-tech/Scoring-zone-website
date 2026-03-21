@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=1080">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1080px;height:1080px;overflow:hidden;font-family:'DM Sans',sans-serif;background:#050505;position:relative}
+.bg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 25% 80%,rgba(255,50,50,0.06)0%,transparent 60%),radial-gradient(ellipse 70% 50% at 75% 80%,rgba(0,237,4,0.08)0%,transparent 60%),linear-gradient(180deg,#080808 0%,#040404 100%)}
+.content{position:relative;z-index:1;width:100%;height:100%;display:flex;flex-direction:column;padding:56px 60px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.tag{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#00ed04;background:rgba(0,237,4,0.08);border:1px solid rgba(0,237,4,0.2);padding:8px 16px;border-radius:4px}
+.timeframe{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:rgba(255,255,255,0.4);letter-spacing:0.08em;text-transform:uppercase}
+.headline{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:56px;line-height:0.95;letter-spacing:0.02em;text-transform:uppercase;color:#fff;margin-bottom:40px}
+.comparison{display:grid;grid-template-columns:1fr 60px 1fr;flex:1;align-items:stretch}
+.side{display:flex;flex-direction:column;gap:14px}
+.side-label{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:28px;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:6px;padding-bottom:10px}
+.side-label.before{color:rgba(255,80,80,0.7);border-bottom:2px solid rgba(255,80,80,0.2)}
+.side-label.after{color:#00ed04;border-bottom:2px solid rgba(0,237,4,0.3)}
+.stat-row{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:16px 20px;display:flex;flex-direction:column;gap:2px}
+.stat-row .metric{font-family:'JetBrains Mono',monospace;font-size:14px;color:rgba(255,255,255,0.35);letter-spacing:0.08em;text-transform:uppercase}
+.stat-row .value{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:48px;line-height:1}
+.stat-row .value.bad{color:rgba(255,100,100,0.8)}.stat-row .value.good{color:#00ed04;text-shadow:0 0 20px rgba(0,237,4,0.2)}
+.stat-row .context{font-size:15px;color:rgba(255,255,255,0.3)}
+.divider{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding-top:48px}
+.divider-line{width:2px;flex:1;background:linear-gradient(180deg,rgba(255,80,80,0.3),rgba(255,255,255,0.1)50%,rgba(0,237,4,0.4))}
+.divider-arrow{font-size:20px;color:rgba(255,255,255,0.3)}
+.bottom-bar{display:flex;align-items:center;justify-content:space-between;margin-top:36px;padding-top:18px;border-top:1px solid rgba(255,255,255,0.06)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-dot{width:24px;height:24px;border:2px solid #00ed04;border-radius:50%;position:relative}
+.brand-dot::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:8px;height:8px;background:#00ed04;border-radius:50%}
+.brand-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.12em;text-transform:uppercase;color:#fff}
+.cta{font-size:15px;font-weight:600;color:#00ed04}
+</style></head>
+<body>
+<div class="bg"></div>
+<div class="content">
+<div class="header"><div class="tag">Real Results</div><div class="timeframe">8 weeks · scored drills</div></div>
+<div class="headline">Your short game HCP<br>over 8 weeks.</div>
+<div class="comparison">
+<div class="side"><div class="side-label before">Before</div><div class="stat-row"><div class="metric">Week 1 HCP</div><div class="value bad">16.2</div><div class="context">starting point</div></div>
+<div class="stat-row"><div class="metric">Putting HCP</div><div class="value bad">13.8</div><div class="context">lag + short putts</div></div>
+<div class="stat-row"><div class="metric">Chipping HCP</div><div class="value bad">15.1</div><div class="context">proximity + up/down</div></div>
+<div class="stat-row"><div class="metric">Combined</div><div class="value bad">14.5</div><div class="context">short game average</div></div>
+</div>
+<div class="divider"><div class="divider-line"></div><div class="divider-arrow">&rarr;</div><div class="divider-line"></div></div>
+<div class="side"><div class="side-label after">After</div><div class="stat-row"><div class="metric">Week 1 HCP</div><div class="value good">Week 8 HCP</div><div class="context"></div></div>
+<div class="stat-row"><div class="metric">Putting HCP</div><div class="value good">8.4</div><div class="context">-5.4 drop</div></div>
+<div class="stat-row"><div class="metric">Chipping HCP</div><div class="value good">9.7</div><div class="context">-5.4 drop</div></div>
+<div class="stat-row"><div class="metric">Combined</div><div class="value good">9.1</div><div class="context">-5.4 strokes</div></div>
+</div>
+</div>
+<div class="bottom-bar"><div class="brand"><div class="brand-dot"></div><div class="brand-name">Scoring Zone</div></div><div class="cta">Free early access &rarr; scoringzone.net</div></div>
+</div>
+</body></html>

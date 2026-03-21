@@ -10,7 +10,7 @@ variant_performance.json (if they exist) and biases template selection
 and variant ordering toward historically high-engagement choices.
 """
 from __future__ import annotations
-import json, logging, math, os, random, re
+import json, logging, math, os, random, re, shutil
 from datetime import datetime
 from researcher import ContentOpportunity
 from media_processor import generate_images
@@ -368,6 +368,66 @@ NOTES
 """
 
 
+# ── App design library integration ────────────────────────────────────────────
+
+_APP_DESIGNS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "social-designs", "library")
+_APP_CAPTIONS_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "social-designs", "captions", "all_captions.json")
+_app_captions_cache: list | None = None
+
+
+def _load_app_captions() -> list:
+    """Load the pre-written app design captions."""
+    global _app_captions_cache
+    if _app_captions_cache is not None:
+        return _app_captions_cache
+    try:
+        with open(_APP_CAPTIONS_FILE, encoding="utf-8") as f:
+            _app_captions_cache = json.load(f)
+    except Exception:
+        _app_captions_cache = []
+    return _app_captions_cache
+
+
+def _add_app_design(folder: str, cycle_number: int) -> dict | None:
+    """
+    Copy one pre-made app design PNG into the package folder as image_app.jpg.
+    Returns the matching caption dict or None if unavailable.
+    """
+    captions = _load_app_captions()
+    if not captions or not os.path.isdir(_APP_DESIGNS_DIR):
+        return None
+
+    # Select design by cycle rotation
+    idx = cycle_number % len(captions)
+    caption_data = captions[idx]
+    design_id = caption_data["id"]
+    png_path = os.path.join(_APP_DESIGNS_DIR, f"{design_id}.png")
+
+    if not os.path.exists(png_path):
+        logger.warning(f"App design PNG not found: {png_path}")
+        return None
+
+    # Copy into package as image_app.jpg (convert PNG → JPG)
+    try:
+        from PIL import Image
+        img = Image.open(png_path).convert("RGB")
+        dest = os.path.join(folder, "image_app.jpg")
+        img.save(dest, "JPEG", quality=95)
+        logger.info(f"  [packager] Added app design: {design_id} → image_app.jpg")
+    except Exception as e:
+        # Fallback: just copy the PNG
+        dest = os.path.join(folder, "image_app.png")
+        shutil.copy2(png_path, dest)
+        logger.info(f"  [packager] Added app design (PNG): {design_id}")
+
+    # Write app-specific captions
+    if caption_data.get("facebook"):
+        with open(os.path.join(folder, "caption_facebook.txt"), "w", encoding="utf-8") as f:
+            f.write(caption_data["facebook"])
+
+    return caption_data
+
+
 # ── Main entry point ──────────────────────────────────────────────────────────
 
 def build_package(
@@ -401,9 +461,19 @@ def build_package(
         n_variants=3,
     )
 
+    # ── App design (1 per cycle, rotated from library of 40) ──
+    app_design = _add_app_design(folder, cycle_number)
+
     # ── Captions ──
     ig_cap, caption_template = _ig_caption(opp, context_snippets, caption_perf)
     x_cap  = _x_caption(opp)
+
+    # If an app design was added, write its captions as alternates
+    if app_design:
+        with open(os.path.join(folder, "caption_app_instagram.txt"), "w", encoding="utf-8") as f:
+            f.write(app_design.get("instagram", ""))
+        with open(os.path.join(folder, "caption_app_x.txt"), "w", encoding="utf-8") as f:
+            f.write(app_design.get("x", ""))
 
     with open(os.path.join(folder, "caption_instagram.txt"), "w") as f:
         f.write(ig_cap)
@@ -430,9 +500,11 @@ def build_package(
         "top_video_id":      opp.top_video_id,
         "top_channel":       opp.top_channel,
         "cycle_number":      cycle_number,
-        "image_count":       3,
+        "image_count":       4 if app_design else 3,
         "caption_template":  caption_template,
         "preferred_variant": preferred_variant,
+        "app_design_id":     app_design["id"] if app_design else None,
+        "app_design_topic":  app_design["topic"] if app_design else None,
         "created_at":        datetime.utcnow().isoformat(),
     }
     with open(os.path.join(folder, "manifest.json"), "w") as f:

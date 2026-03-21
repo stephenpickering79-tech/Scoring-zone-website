@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>ScoringZone — Feature Highlight: Elite Mode</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+    background: #050505;
+    position: relative;
+  }
+
+  .bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 50% 0%, rgba(220, 50, 50, 0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 60% at 30% 100%, rgba(245, 160, 20, 0.06) 0%, transparent 50%),
+      linear-gradient(180deg, #0a0404 0%, #050505 30%, #050505 100%);
+  }
+
+  /* Danger stripe at very top */
+  .danger-stripe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg,
+      #ff3030 0%, #ff3030 8%, transparent 8%, transparent 12%,
+      #ff3030 12%, #ff3030 20%, transparent 20%, transparent 24%,
+      #ff3030 24%, #ff3030 32%, transparent 32%, transparent 36%,
+      #ff3030 36%, #ff3030 44%, transparent 44%, transparent 48%,
+      #ff3030 48%, #ff3030 56%, transparent 56%, transparent 60%,
+      #ff3030 60%, #ff3030 68%, transparent 68%, transparent 72%,
+      #ff3030 72%, #ff3030 80%, transparent 80%, transparent 84%,
+      #ff3030 84%, #ff3030 92%, transparent 92%, transparent 96%,
+      #ff3030 96%, #ff3030 100%);
+    opacity: 0.7;
+    z-index: 10;
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 48px 60px 0;
+  }
+
+  /* Elite mode banner */
+  .elite-banner {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .elite-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #ff6030;
+    background: rgba(255,80,30,0.1);
+    border: 1px solid rgba(255,80,30,0.3);
+    padding: 6px 14px;
+    border-radius: 4px;
+  }
+  .elite-tag::before {
+    content: '⚡ ';
+  }
+
+  .difficulty {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .headline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 58px;
+    line-height: 0.92;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 12px;
+  }
+  .headline em {
+    font-style: normal;
+    color: #ff6030;
+    text-shadow: 0 0 30px rgba(255,80,30,0.25);
+  }
+
+  .subline {
+    font-size: 17px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.5;
+    max-width: 500px;
+    margin-bottom: 36px;
+  }
+
+  /* Two-phone layout */
+  .phones-section {
+    flex: 1;
+    display: flex;
+    gap: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .phone-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .phone-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: rgba(255,255,255,0.3);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .phone-frame {
+    flex: 1;
+    background: #111;
+    border-radius: 24px;
+    border: 2px solid rgba(255,255,255,0.08);
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+  }
+  .phone-frame.elite-border {
+    border-color: rgba(255,80,30,0.3);
+    box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 40px rgba(255,80,30,0.06);
+  }
+
+  .phone-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  /* Feature bullets overlay */
+  .features-overlay {
+    position: absolute;
+    bottom: 80px;
+    left: 0;
+    right: 0;
+    display: flex;
+    gap: 16px;
+    padding: 0 20px;
+  }
+
+  .feature-pill {
+    background: rgba(10,10,10,0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 12px 16px;
+    flex: 1;
+  }
+
+  .feature-pill .fp-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #fff;
+    margin-bottom: 3px;
+  }
+
+  .feature-pill .fp-desc {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    line-height: 1.4;
+  }
+
+  /* Bottom bar */
+  .bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: rgba(0,0,0,0.9);
+    border-top: 1px solid rgba(255,80,30,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    z-index: 10;
+  }
+
+  .brand-lockup {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-icon {
+    width: 22px;
+    height: 22px;
+    border: 2px solid #00ed04;
+    border-radius: 50%;
+    position: relative;
+  }
+  .brand-icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 7px;
+    height: 7px;
+    background: #00ed04;
+    border-radius: 50%;
+  }
+
+  .brand-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .cta-pill {
+    font-size: 13px;
+    font-weight: 600;
+    color: #000;
+    background: #00ed04;
+    padding: 7px 18px;
+    border-radius: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="danger-stripe"></div>
+
+  <div class="content">
+    <div class="elite-banner">
+      <div class="elite-tag">Elite Mode</div>
+      <div class="difficulty">Increased difficulty · No gimmes</div>
+    </div>
+
+    <div class="headline">
+      Think your short game<br>
+      is good? <em>Prove it.</em>
+    </div>
+
+    <div class="subline">
+      Elite Mode strips away the safety net. Tighter targets, higher penalties, real tournament pressure in every drill.
+    </div>
+
+    <div class="phones-section">
+      <div class="phone-col">
+        <div class="phone-label">Standard drill</div>
+        <div class="phone-frame">
+          <img src="../../../Landing Page/features/images/putting-lag-king-2.jpg" alt="Standard Lag King drill">
+        </div>
+      </div>
+      <div class="phone-col">
+        <div class="phone-label">Elite mode active</div>
+        <div class="phone-frame elite-border">
+          <img src="../../../Landing Page/features/images/elite-challenge.jpg" alt="Elite Mode Par in 2">
+        </div>
+      </div>
+
+      <div class="features-overlay">
+        <div class="feature-pill">
+          <div class="fp-title">Tighter targets</div>
+          <div class="fp-desc">Must be putter length away — no gimmes</div>
+        </div>
+        <div class="feature-pill">
+          <div class="fp-title">Penalty system</div>
+          <div class="fp-desc">Miss = restart. Mirrors real round pressure</div>
+        </div>
+        <div class="feature-pill">
+          <div class="fp-title">2× XP rewards</div>
+          <div class="fp-desc">Higher risk, higher reward for completion</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="brand-lockup">
+      <div class="brand-icon"></div>
+      <div class="brand-name">Scoring Zone</div>
+    </div>
+    <div class="cta-pill">Free early access →</div>
+  </div>
+</body>
+</html>

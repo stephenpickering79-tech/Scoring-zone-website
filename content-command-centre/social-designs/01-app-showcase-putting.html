@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>ScoringZone — App Showcase: Putting Drills</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+    background: #050505;
+    position: relative;
+  }
+
+  /* Atmospheric background */
+  .bg-gradient {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 75% 85%, rgba(110, 60, 200, 0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 50% at 20% 20%, rgba(0, 237, 4, 0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 100% 100% at 50% 50%, rgba(10, 10, 10, 1) 40%, rgba(5, 5, 5, 1) 100%);
+  }
+
+  /* Subtle grid texture */
+  .bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,237,4,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,237,4,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Top section — headline */
+  .top-section {
+    padding: 56px 60px 0;
+    flex-shrink: 0;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #00ed04;
+    background: rgba(0,237,4,0.08);
+    border: 1px solid rgba(0,237,4,0.2);
+    padding: 6px 14px;
+    border-radius: 4px;
+    margin-bottom: 24px;
+  }
+  .tag::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: #00ed04;
+    border-radius: 50%;
+    box-shadow: 0 0 8px rgba(0,237,4,0.6);
+  }
+
+  .headline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 62px;
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #fff;
+    max-width: 520px;
+    margin-bottom: 16px;
+  }
+  .headline em {
+    font-style: normal;
+    color: #00ed04;
+    text-shadow: 0 0 30px rgba(0,237,4,0.3);
+  }
+
+  .subline {
+    font-size: 18px;
+    color: rgba(255,255,255,0.5);
+    font-weight: 400;
+    max-width: 440px;
+    line-height: 1.5;
+  }
+
+  /* Phone mockup area */
+  .phone-area {
+    flex: 1;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+  }
+
+  .phone-frame {
+    width: 320px;
+    height: 640px;
+    background: #1a1a1a;
+    border-radius: 36px;
+    border: 3px solid #333;
+    overflow: hidden;
+    position: relative;
+    box-shadow:
+      0 0 0 1px rgba(0,237,4,0.1),
+      0 20px 60px rgba(0,0,0,0.6),
+      0 0 80px rgba(110,60,200,0.08);
+    margin-bottom: -80px; /* Bleed off bottom */
+  }
+
+  .phone-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+  }
+
+  /* Notch */
+  .phone-frame::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 28px;
+    background: #1a1a1a;
+    border-radius: 0 0 16px 16px;
+    z-index: 2;
+  }
+
+  /* Floating stat cards */
+  .float-card {
+    position: absolute;
+    background: rgba(15,15,15,0.92);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  }
+
+  .float-card-left {
+    left: 48px;
+    top: 420px;
+  }
+
+  .float-card-right {
+    right: 48px;
+    top: 500px;
+  }
+
+  .stat-number {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 48px;
+    color: #00ed04;
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(0,237,4,0.3);
+  }
+
+  .stat-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .stat-number.purple {
+    color: #a259ff;
+    text-shadow: 0 0 20px rgba(162,89,255,0.3);
+  }
+
+  /* Bottom bar */
+  .bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: rgba(0,0,0,0.9);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid rgba(0,237,4,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    z-index: 10;
+  }
+
+  .brand-lockup {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-icon {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #00ed04;
+    border-radius: 50%;
+    position: relative;
+  }
+  .brand-icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: #00ed04;
+    border-radius: 50%;
+  }
+
+  .brand-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .cta-pill {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #000;
+    background: #00ed04;
+    padding: 8px 20px;
+    border-radius: 20px;
+    letter-spacing: 0.02em;
+    box-shadow: 0 0 16px rgba(0,237,4,0.3);
+  }
+</style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="bg-grid"></div>
+
+  <div class="content">
+    <div class="top-section">
+      <div class="tag">Putting Drills</div>
+      <div class="headline">
+        7 scored drills.<br>
+        <em>Zero 3-putts.</em>
+      </div>
+      <div class="subline">
+        Lag King, Clock Drill, Streak Survivor — every putt scored, every session tracked.
+      </div>
+    </div>
+
+    <div class="phone-area">
+      <!-- Floating stat cards -->
+      <div class="float-card float-card-left">
+        <div class="stat-number">84%</div>
+        <div class="stat-label">3-putt elimination rate</div>
+      </div>
+
+      <div class="float-card float-card-right">
+        <div class="stat-number purple">55 XP</div>
+        <div class="stat-label">per completed drill</div>
+      </div>
+
+      <!-- Phone -->
+      <div class="phone-frame">
+        <img src="../../../Landing Page/features/images/putting-drills-1.jpg" alt="Putting drills list">
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="brand-lockup">
+        <div class="brand-icon"></div>
+        <div class="brand-name">Scoring Zone</div>
+      </div>
+      <div class="cta-pill">Free early access →</div>
+    </div>
+  </div>
+</body>
+</html>

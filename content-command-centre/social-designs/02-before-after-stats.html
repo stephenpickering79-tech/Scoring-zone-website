@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<title>ScoringZone — Before/After Stats</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    width: 1080px;
+    height: 1080px;
+    overflow: hidden;
+    font-family: 'DM Sans', sans-serif;
+    background: #050505;
+    position: relative;
+  }
+
+  .bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 25% 80%, rgba(255,50,50,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 70% 50% at 75% 80%, rgba(0,237,4,0.08) 0%, transparent 60%),
+      linear-gradient(180deg, #080808 0%, #040404 100%);
+  }
+
+  .content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 56px 60px;
+  }
+
+  /* Header */
+  .header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #00ed04;
+    background: rgba(0,237,4,0.08);
+    border: 1px solid rgba(0,237,4,0.2);
+    padding: 8px 16px;
+    border-radius: 4px;
+  }
+
+  .weeks-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .headline {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 900;
+    font-size: 56px;
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: #fff;
+    margin-bottom: 40px;
+  }
+
+  /* Comparison grid */
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 60px 1fr;
+    gap: 0;
+    flex: 1;
+    align-items: stretch;
+  }
+
+  .side {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .side-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    padding-bottom: 12px;
+  }
+  .side-label.before {
+    color: rgba(255,80,80,0.7);
+    border-bottom: 2px solid rgba(255,80,80,0.2);
+  }
+  .side-label.after {
+    color: #00ed04;
+    border-bottom: 2px solid rgba(0,237,4,0.3);
+  }
+
+  .stat-row {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .stat-row .metric {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 15px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .stat-row .value {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 800;
+    font-size: 52px;
+    line-height: 1;
+  }
+  .stat-row .value.bad { color: rgba(255,100,100,0.8); }
+  .stat-row .value.good { color: #00ed04; text-shadow: 0 0 20px rgba(0,237,4,0.2); }
+
+  .stat-row .context {
+    font-size: 16px;
+    color: rgba(255,255,255,0.3);
+    font-weight: 400;
+  }
+
+  /* Center divider */
+  .divider {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding-top: 48px;
+  }
+
+  .divider-line {
+    width: 2px;
+    flex: 1;
+    background: linear-gradient(180deg, rgba(255,80,80,0.3), rgba(255,255,255,0.1) 50%, rgba(0,237,4,0.4));
+  }
+
+  .divider-arrow {
+    font-size: 20px;
+    color: rgba(255,255,255,0.3);
+  }
+
+  /* Bottom bar */
+  .bottom-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+  }
+
+  .brand-lockup {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-icon {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #00ed04;
+    border-radius: 50%;
+    position: relative;
+  }
+  .brand-icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 8px;
+    height: 8px;
+    background: #00ed04;
+    border-radius: 50%;
+  }
+
+  .brand-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+
+  .cta-text {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    color: #00ed04;
+    letter-spacing: 0.02em;
+  }
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <div class="content">
+    <div class="header">
+      <div class="tag">Real Results</div>
+      <div class="weeks-badge">4 weeks · 3 sessions/week</div>
+    </div>
+
+    <div class="headline">What 12 sessions<br>actually changes.</div>
+
+    <div class="comparison">
+      <!-- Before -->
+      <div class="side">
+        <div class="side-label before">Before</div>
+        <div class="stat-row">
+          <div class="metric">3-Putts per round</div>
+          <div class="value bad">5.2</div>
+          <div class="context">avg across 4 rounds</div>
+        </div>
+        <div class="stat-row">
+          <div class="metric">Up & Down %</div>
+          <div class="value bad">18%</div>
+          <div class="context">scrambling success</div>
+        </div>
+        <div class="stat-row">
+          <div class="metric">Putting HCP</div>
+          <div class="value bad">12.4</div>
+          <div class="context">ScoringZone metric</div>
+        </div>
+        <div class="stat-row">
+          <div class="metric">Avg proximity (chip)</div>
+          <div class="value bad">22 ft</div>
+          <div class="context">from hole</div>
+        </div>
+      </div>
+
+      <!-- Divider -->
+      <div class="divider">
+        <div class="divider-line"></div>
+        <div class="divider-arrow">→</div>
+        <div class="divider-line"></div>
+      </div>
+
+      <!-- After -->
+      <div class="side">
+        <div class="side-label after">After</div>
+        <div class="stat-row">
+          <div class="metric">3-Putts per round</div>
+          <div class="value good">1.8</div>
+          <div class="context">65% reduction</div>
+        </div>
+        <div class="stat-row">
+          <div class="metric">Up & Down %</div>
+          <div class="value good">38%</div>
+          <div class="context">+20% improvement</div>
+        </div>
+        <div class="stat-row">
+          <div class="metric">Putting HCP</div>
+          <div class="value good">7.1</div>
+          <div class="context">-5.3 strokes gained</div>
+        </div>
+        <div class="stat-row">
+          <div class="metric">Avg proximity (chip)</div>
+          <div class="value good">11 ft</div>
+          <div class="context">50% closer</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="brand-lockup">
+        <div class="brand-icon"></div>
+        <div class="brand-name">Scoring Zone</div>
+      </div>
+      <div class="cta-text">Free early access → scoringzone.net</div>
+    </div>
+  </div>
+</body>
+</html>

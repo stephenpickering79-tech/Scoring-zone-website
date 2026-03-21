@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=1080">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{width:1080px;height:1080px;overflow:hidden;font-family:'DM Sans',sans-serif;background:#050505;position:relative}
+.bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 75% 85%,rgba(110,60,200,0.12)0%,transparent 70%),radial-gradient(ellipse 60% 50% at 20% 20%,rgba(0,237,4,0.06)0%,transparent 60%)}
+.bg-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(0,237,4,0.03)1px,transparent 1px),linear-gradient(90deg,rgba(0,237,4,0.03)1px,transparent 1px);background-size:40px 40px}
+.content{position:relative;z-index:1;width:100%;height:100%;display:flex;flex-direction:column}
+.top{padding:56px 60px 0;flex-shrink:0}
+.tag{display:inline-flex;align-items:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:#00ed04;background:rgba(0,237,4,0.08);border:1px solid rgba(0,237,4,0.2);padding:8px 16px;border-radius:4px;margin-bottom:24px}
+.tag::before{content:'';width:6px;height:6px;background:#00ed04;border-radius:50%;box-shadow:0 0 8px rgba(0,237,4,0.6)}
+.headline{font-family:'Barlow Condensed',sans-serif;font-weight:900;font-size:62px;line-height:0.95;letter-spacing:0.02em;text-transform:uppercase;color:#fff;max-width:520px;margin-bottom:16px}
+.headline em{font-style:normal;color:#00ed04;text-shadow:0 0 30px rgba(0,237,4,0.3)}
+.subline{font-size:20px;color:rgba(255,255,255,0.5);font-weight:400;max-width:460px;line-height:1.5}
+.phone-area{flex:1;position:relative;display:flex;justify-content:center;align-items:flex-end}
+.phone-frame{width:320px;height:640px;background:#1a1a1a;border-radius:36px;border:3px solid #333;overflow:hidden;position:relative;box-shadow:0 0 0 1px rgba(0,237,4,0.1),0 20px 60px rgba(0,0,0,0.6);margin-bottom:-80px}
+.phone-frame img{width:100%;height:100%;object-fit:cover;object-position:top}
+.phone-frame::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:120px;height:28px;background:#1a1a1a;border-radius:0 0 16px 16px;z-index:2}
+.float-card{position:absolute;background:rgba(15,15,15,0.92);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:16px 20px;box-shadow:0 12px 40px rgba(0,0,0,0.5)}
+.float-left{left:48px;top:420px}
+.float-right{right:48px;top:520px}
+.stat-num{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:48px;color:#00ed04;line-height:1;text-shadow:0 0 20px rgba(0,237,4,0.3)}
+.stat-num.alt{color:#ff6030;text-shadow:0 0 20px #ff603033}
+.stat-lbl{font-family:'JetBrains Mono',monospace;font-size:13px;color:rgba(255,255,255,0.45);letter-spacing:0.06em;text-transform:uppercase;margin-top:4px}
+.bottom-bar{position:absolute;bottom:0;left:0;right:0;height:56px;background:rgba(0,0,0,0.9);border-top:1px solid rgba(0,237,4,0.15);display:flex;align-items:center;justify-content:space-between;padding:0 32px;z-index:10}
+.brand{display:flex;align-items:center;gap:10px}
+.brand-dot{width:24px;height:24px;border:2px solid #00ed04;border-radius:50%;position:relative}
+.brand-dot::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:8px;height:8px;background:#00ed04;border-radius:50%}
+.brand-name{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:16px;letter-spacing:0.12em;text-transform:uppercase;color:#fff}
+.cta{font-size:14px;font-weight:600;color:#000;background:#00ed04;padding:8px 20px;border-radius:20px;box-shadow:0 0 16px rgba(0,237,4,0.3)}
+</style></head>
+<body>
+<div class="bg"></div><div class="bg-grid"></div>
+<div class="content">
+<div class="top">
+<div class="tag">Pressure Combine</div>
+<div class="headline">30 minutes.<br><em>Maximum pressure.</em></div>
+<div class="subline">Short game + putting combine with timer, penalties, and real tournament pressure simulation.</div>
+</div>
+<div class="phone-area">
+<div class="float-card float-left"><div class="stat-num">30 min</div><div class="stat-lbl">combine duration</div></div>
+<div class="float-card float-right"><div class="stat-num alt">4</div><div class="stat-lbl">pressure stages</div></div>
+<div class="phone-frame"><img src="../../../../Landing Page/features/images/assistant-pressure.jpg" alt=""></div>
+</div>
+<div class="bottom-bar"><div class="brand"><div class="brand-dot"></div><div class="brand-name">Scoring Zone</div></div><div class="cta">Free early access &rarr;</div></div>
+</div>
+</body></html>
