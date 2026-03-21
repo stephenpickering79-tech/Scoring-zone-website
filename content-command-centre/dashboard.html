@@ -386,12 +386,17 @@
   .package-card.rejected { opacity: 0.4; filter: grayscale(0.5); }
 
   .card-image {
-    aspect-ratio: 1/1;
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    height: 0;
     background: var(--surface);
     overflow: hidden;
-    position: relative;
   }
-  .card-image img {
+  .card-image img,
+  .card-image > div {
+    position: absolute;
+    top: 0; left: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
