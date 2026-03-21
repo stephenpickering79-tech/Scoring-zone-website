@@ -42,6 +42,62 @@ TEXT_MID    = (155, 240, 157)      # tagline soft green-white
 TEXT_GHOST  = (55,  115,  57)      # subtle secondary text
 BAR_TEXT    = (2,   6,   2)        # text on green bar
 
+# ── Topic accent colours — secondary tints per content category ───────────────
+# Primary neon green stays for brand consistency; these add differentiation.
+TOPIC_ACCENTS = {
+    "putt":     (67, 200, 244),    # cool blue
+    "3-putt":   (67, 200, 244),    # cool blue
+    "3 putt":   (67, 200, 244),    # cool blue
+    "lag":      (67, 200, 244),    # cool blue
+    "chip":     (244, 180, 50),    # warm gold
+    "bunker":   (220, 160, 100),   # sandy amber
+    "sand":     (220, 160, 100),   # sandy amber
+    "short":    (2, 244, 180),     # teal
+    "pitch":    (180, 100, 244),   # purple
+    "wedge":    (180, 100, 244),   # purple
+    "driv":     (244, 100, 60),    # warm red-orange
+    "distance": (244, 100, 60),    # warm red-orange
+    "iron":     (150, 200, 255),   # steel blue
+    "approach": (150, 200, 255),   # steel blue
+    "score":    (255, 215, 0),     # gold
+    "handicap": (255, 215, 0),     # gold
+    "pressure": (244, 67, 100),    # hot pink
+    "mental":   (200, 180, 255),   # lavender
+}
+
+# Photo colour moods per topic — controls background photo treatment
+PHOTO_MOODS = {
+    "warm":    {"color": 0.85, "brightness": 0.75, "tint": (24, 12, 0, 30)},
+    "cool":    {"color": 0.70, "brightness": 0.72, "tint": (0, 12, 24, 30)},
+    "neutral": {"color": 0.75, "brightness": 0.70, "tint": (0, 24, 0, 35)},
+}
+TOPIC_MOOD_MAP = {
+    "putt": "cool", "3-putt": "cool", "3 putt": "cool", "lag": "cool",
+    "chip": "warm", "bunker": "warm", "sand": "warm",
+    "short": "neutral", "pitch": "neutral", "wedge": "neutral",
+    "driv": "warm", "distance": "warm",
+    "iron": "cool", "approach": "cool",
+    "score": "neutral", "handicap": "neutral",
+    "pressure": "warm", "mental": "cool",
+}
+
+
+def _get_topic_accent(topic_lower: str) -> tuple:
+    """Return the accent colour for a topic, falling back to brand green."""
+    for kw, colour in TOPIC_ACCENTS.items():
+        if kw in topic_lower:
+            return colour
+    return GREEN
+
+
+def _get_topic_mood(topic_lower: str) -> str:
+    """Return the photo mood profile name for a topic."""
+    for kw, mood in TOPIC_MOOD_MAP.items():
+        if kw in topic_lower:
+            return mood
+    return "neutral"
+
+
 # ── Canvas ─────────────────────────────────────────────────────────────────────
 W = H = 1080
 BAR_H = 52  # green top bar height
@@ -232,7 +288,7 @@ def _get_topic_photos(topic_lower: str, n: int = 3, rotation_seed: str = "") -> 
     return picks
 
 
-def _make_photo_bg(photo_filename: str, overlay_alpha: int = 115) -> Image.Image:
+def _make_photo_bg(photo_filename: str, overlay_alpha: int = 115, mood: str = "neutral") -> Image.Image:
     """
     Load a golf photo, resize to 1080×1080, and apply a heavy dark overlay
     so the Neon Meridian design elements remain fully readable on top.
@@ -255,10 +311,11 @@ def _make_photo_bg(photo_filename: str, overlay_alpha: int = 115) -> Image.Image
             photo = photo.crop((left, top, left + side, top + side))
         photo = photo.resize((W, H), Image.LANCZOS)
 
-        # Desaturate slightly — keep warmth but feel Neon Meridian atmospheric
+        # Apply mood-specific colour treatment
         from PIL import ImageEnhance as IE
-        photo = IE.Color(photo).enhance(0.75)      # keep colour warmth
-        photo = IE.Brightness(photo).enhance(0.70) # visible but cinematic
+        m = PHOTO_MOODS.get(mood, PHOTO_MOODS["neutral"])
+        photo = IE.Color(photo).enhance(m["color"])
+        photo = IE.Brightness(photo).enhance(m["brightness"])
 
         photo_rgba = photo.convert("RGBA")
 
@@ -266,8 +323,8 @@ def _make_photo_bg(photo_filename: str, overlay_alpha: int = 115) -> Image.Image
         overlay = Image.new("RGBA", (W, H), (2, 6, 2, overlay_alpha))
         photo_rgba = Image.alpha_composite(photo_rgba, overlay)
 
-        # Green tint layer
-        tint = Image.new("RGBA", (W, H), (0, 24, 0, 35))
+        # Mood-specific tint layer
+        tint = Image.new("RGBA", (W, H), m["tint"])
         photo_rgba = Image.alpha_composite(photo_rgba, tint)
 
         return photo_rgba
@@ -433,82 +490,183 @@ def _draw_green_tint(img: Image.Image):
 
 # ── Bullet / stat data ─────────────────────────────────────────────────────────
 
-def _make_bullets(topic_lower: str) -> list[str]:
-    # Putting
-    if any(w in topic_lower for w in ["3-putt", "3 putt", "three putt"]):
-        return ["Ladder drill: 3, 6, 9, 12, 15 ft", "3 consecutive makes to advance", "Track your putting HCP in real time"]
-    if any(w in topic_lower for w in ["lag putt", "lag"]):
-        return ["All putts must finish within 3 ft", "5 balls from 20, 30 & 40 ft", "Penalty: restart distance on miss"]
-    if any(w in topic_lower for w in ["putt", "green", "hole"]):
-        return ["Gate challenge: hole must stay in gate", "Consecutive makes = pressure simulation", "Earn XP · watch your putting HCP drop"]
-    # Chipping
-    if any(w in topic_lower for w in ["bump", "run"]):
-        return ["Low trajectory · land short of green", "Let the ball release to the hole", "Score your up & down success rate"]
-    if any(w in topic_lower for w in ["flop", "lob"]):
-        return ["Open clubface before gripping", "Swing hard · face stays open", "Target: soft landing, minimal roll"]
-    if any(w in topic_lower for w in ["up and down", "up & down", "scrambl"]):
-        return ["10 total shots · 5 up-and-downs", "Track your chip-and-putt success rate", "Score 3/5 to pass · 5/5 for elite XP"]
-    if any(w in topic_lower for w in ["chip", "around the green", "short game"]):
-        return ["Weight forward 60/40 at address", "Shaft lean toward target at impact", "Score every rep · track your chipping HCP"]
-    # Pitching / wedges
-    if any(w in topic_lower for w in ["pitch", "wedge", "100 yard", "distance control"]):
-        return ["Ladder drill: 20, 40, 60, 80 yds", "Land zone must be within 6 ft of target", "Scored reps · earn 280 XP on completion"]
-    # Bunker
-    if any(w in topic_lower for w in ["bunker", "sand"]):
-        return ["Open clubface before gripping", "Entry point: 2 inches behind the ball", "Swing through · finish high every time"]
-    # Pressure / mental
-    if any(w in topic_lower for w in ["pressure", "mental", "nerves", "tournament"]):
-        return ["Timer running · consecutive required", "Penalty system mirrors on-course stakes", "Simulate tournament pressure every rep"]
-    # Driving / distance
-    if any(w in topic_lower for w in ["driv", "distance", "carry", "tee shot", "driver"]):
-        return ["Attack angle +3° or higher", "Tee ball level with lead ear", "Max shoulder turn · quiet lower body"]
-    # Iron / approach
-    if any(w in topic_lower for w in ["iron", "approach", "ball striking", "fairway"]):
-        return ["Ball center-to-back in stance", "Hands ahead at impact · compress down", "Track greens in regulation per round"]
-    # Handicap / scoring
-    if any(w in topic_lower for w in ["handicap", "hcp", "scoring", "score"]):
-        return ["Every drill feeds your short game HCP", "Benchmark: beat your score to earn 2× XP", "3.2 avg stroke improvement with Scoring Zone"]
-    # Generic short game / improvement
-    return ["50+ scored drills across 4 categories", "Real-time HCP scoring every session", "Pressure Test your short game at scoringzone.net"]
+def _make_bullets(topic_lower: str, rotation_seed: str = "") -> list[str]:
+    """Return 3 bullet points for the topic, rotating through sets via seed."""
+    _BULLET_POOLS = {
+        "3-putt": [
+            ["Ladder drill: 3, 6, 9, 12, 15 ft", "3 consecutive makes to advance", "Track your putting HCP in real time"],
+            ["Speed control: die the ball at the hole", "Zone putting: 3-foot circle is your target", "Score 12/15 to pass the Lag Ladder"],
+            ["Distance over line: control speed first", "Practice from 20, 30 & 40 ft weekly", "Earn XP with every successful lag"],
+        ],
+        "lag": [
+            ["All putts must finish within 3 ft", "5 balls from 20, 30 & 40 ft", "Penalty: restart distance on miss"],
+            ["Trash can lid = your target zone", "Low side miss every time", "Speed kills: never go 4 ft past"],
+        ],
+        "putt": [
+            ["Gate challenge: hole must stay in gate", "Consecutive makes = pressure simulation", "Earn XP · watch your putting HCP drop"],
+            ["Start at 3 ft · work out to 15 ft", "Read the break before you set up", "Track make % per distance band"],
+            ["Aim small, miss small: pick a blade", "Pre-putt routine under 8 seconds", "Score every putt · review after 20"],
+        ],
+        "bump": [["Low trajectory · land short of green", "Let the ball release to the hole", "Score your up & down success rate"]],
+        "flop": [["Open clubface before gripping", "Swing hard · face stays open", "Target: soft landing, minimal roll"]],
+        "scrambl": [["10 total shots · 5 up-and-downs", "Track your chip-and-putt success rate", "Score 3/5 to pass · 5/5 for elite XP"]],
+        "short game": [
+            ["50+ drills across 4 short game areas", "Track your scoring zone HCP over time", "Pressure Test mode: simulate real rounds"],
+            ["65% of scoring happens inside 100 yds", "Chipping + putting = your fastest gains", "Score every session · see real improvement"],
+        ],
+        "chip": [
+            ["Weight forward 60/40 at address", "Shaft lean toward target at impact", "Score every rep · track your chipping HCP"],
+            ["One club first · master the pitching wedge", "Putting stroke with a lofted club", "Land spot: pick it before every chip"],
+            ["Quiet wrists · shoulder turn only", "Ball back in stance for low runners", "Track your up-and-down % per session"],
+        ],
+        "pitch": [
+            ["Ladder drill: 20, 40, 60, 80 yds", "Land zone must be within 6 ft of target", "Scored reps · earn 280 XP on completion"],
+            ["Hinge and hold through impact", "Match backswing length to distance", "Clock system: 9 o'clock = 50 yards"],
+        ],
+        "bunker": [
+            ["Open clubface before gripping", "Entry point: 2 inches behind the ball", "Swing through · finish high every time"],
+            ["Hit the sand, not the ball", "Full swing · trust the bounce", "Splash drill: draw a line, hit that"],
+            ["Wide stance · dig your feet in", "Aim at the back edge of the ball", "Follow through to belt buckle height"],
+        ],
+        "pressure": [
+            ["Timer running · consecutive required", "Penalty system mirrors on-course stakes", "Simulate tournament pressure every rep"],
+            ["Miss = restart from zero", "Heart rate up = better practice transfer", "Score under pressure · build real confidence"],
+        ],
+        "driv": [
+            ["Attack angle +3° or higher", "Tee ball level with lead ear", "Max shoulder turn · quiet lower body"],
+            ["Wide stance for stability", "Swing through the ball, not at it", "Launch angle: aim for 12-15 degrees"],
+        ],
+        "iron": [
+            ["Ball center-to-back in stance", "Hands ahead at impact · compress down", "Track greens in regulation per round"],
+            ["Divot after the ball, not before", "Consistent tempo on every swing", "Target the front of the green"],
+        ],
+        "handicap": [
+            ["Every drill feeds your short game HCP", "Benchmark: beat your score to earn 2× XP", "3.2 avg stroke improvement with Scoring Zone"],
+            ["Track stats across every session", "Short game HCP drops fastest", "Set a target · Scoring Zone tracks progress"],
+        ],
+    }
+
+    # Find matching pool
+    pool = None
+    if any(w in topic_lower for w in ["short game"]) and "chip" not in topic_lower:
+        pool = _BULLET_POOLS["short game"]
+    else:
+        for key in ["3-putt", "3 putt", "lag", "putt", "bump", "flop", "scrambl",
+                     "chip", "pitch", "bunker", "sand", "pressure", "mental",
+                     "driv", "distance", "iron", "approach", "handicap", "score"]:
+            if key in topic_lower:
+                pool = _BULLET_POOLS.get(key)
+                if pool:
+                    break
+            if key == "sand" and not pool:
+                pool = _BULLET_POOLS.get("bunker")
+                if pool:
+                    break
+
+    if not pool:
+        pool = [["50+ scored drills across 4 categories", "Real-time HCP scoring every session", "Pressure Test your short game at scoringzone.net"]]
+
+    # Rotate via seed
+    if rotation_seed:
+        idx = int(hashlib.md5(rotation_seed.encode()).hexdigest(), 16) % len(pool)
+    else:
+        idx = 0
+    return pool[idx]
 
 
-def _make_stat(topic_lower: str) -> tuple[str, str]:
-    # Putting
-    if any(w in topic_lower for w in ["3-putt", "3 putt", "three putt"]):
-        return "84%", "of amateurs 3-putt from outside 20 ft"
-    if any(w in topic_lower for w in ["lag putt", "lag"]):
-        return "62%", "of 3-putts start from poor lag distance"
-    if any(w in topic_lower for w in ["putt", "green", "hole"]):
-        return "43%", "of all golf strokes are putts"
-    # Chipping
-    if any(w in topic_lower for w in ["bump", "run"]):
-        return "80%", "of chips should be bump & runs"
-    if any(w in topic_lower for w in ["flop", "lob"]):
-        return "1 in 5", "amateurs can execute a flop shot"
-    if any(w in topic_lower for w in ["up and down", "up & down", "scrambl"]):
-        return "18%", "amateur up-and-down success rate"
-    if any(w in topic_lower for w in ["chip", "around the green", "short game"]):
-        return "60%", "of shots occur within 100 yards"
-    # Pitching
-    if any(w in topic_lower for w in ["pitch", "wedge", "100 yard", "distance control"]):
-        return "67%", "of all shots happen inside 100 yds"
-    # Bunker
-    if any(w in topic_lower for w in ["bunker", "sand"]):
-        return "2\"", "behind the ball · every single time"
-    # Pressure
-    if any(w in topic_lower for w in ["pressure", "mental", "nerves", "tournament"]):
-        return "3.2", "avg strokes saved with pressure practice"
-    # Driving
-    if any(w in topic_lower for w in ["driv", "distance", "carry", "tee shot", "driver"]):
-        return "41 yds", "average gap: amateur vs tour pro"
-    # Iron
-    if any(w in topic_lower for w in ["iron", "approach", "ball striking", "fairway"]):
-        return "68%", "of amateurs miss greens on approach"
-    # Handicap
-    if any(w in topic_lower for w in ["handicap", "hcp", "scoring", "score"]):
-        return "3.2", "avg stroke improvement with Scoring Zone"
-    # Default
-    return "50+", "scored drills to pressure test your short game"
+def _make_stat(topic_lower: str, rotation_seed: str = "") -> tuple[str, str]:
+    """Return a stat + label pair, rotating through options via seed."""
+    _STAT_POOLS = {
+        "3-putt": [
+            ("84%", "of amateurs 3-putt from outside 20 ft"),
+            ("6.2", "avg putts per GIR for a 15-handicapper"),
+            ("3 ft", "putts: tour 99%, amateur 82%"),
+            ("47%", "of strokes over par come from putting"),
+        ],
+        "lag": [
+            ("62%", "of 3-putts start from poor lag distance"),
+            ("40 ft", "avg first putt length on GIR"),
+            ("3 ft", "target zone for every lag putt"),
+        ],
+        "putt": [
+            ("43%", "of all golf strokes are putts"),
+            ("84%", "of amateurs 3-putt regularly from 20 ft+"),
+            ("31%", "make rate from 6 ft for 15-hcp golfers"),
+            ("1.8", "putts per hole is the amateur average"),
+        ],
+        "bump": [("80%", "of chips should be bump & runs")],
+        "flop": [("1 in 5", "amateurs can execute a flop shot")],
+        "scrambl": [
+            ("18%", "amateur up-and-down success rate"),
+            ("58%", "tour up-and-down rate vs 18% for amateurs"),
+        ],
+        "short game": [
+            ("65%", "of your score comes from inside 100 yards"),
+            ("42%", "of shots are within 40 yards of the green"),
+            ("3.8", "avg chips to get within 6 ft (amateurs)"),
+        ],
+        "chip": [
+            ("60%", "of shots occur within 100 yards"),
+            ("Only 18%", "amateur up-and-down success rate"),
+            ("90%", "of amateurs flip wrists on chip shots"),
+            ("3.2", "avg strokes saved with a consistent chip"),
+        ],
+        "pitch": [
+            ("67%", "of all shots happen inside 100 yds"),
+            ("22 yds", "avg distance gap: 50-yd pitch accuracy"),
+        ],
+        "bunker": [
+            ("2\"", "behind the ball · every single time"),
+            ("49%", "of amateurs fail to escape on first try"),
+            ("52%", "tour sand save rate vs 12% for amateurs"),
+            ("20°", "open face angle before you grip"),
+        ],
+        "pressure": [
+            ("3.2", "avg strokes saved with pressure practice"),
+            ("71%", "of golfers choke under tournament pressure"),
+        ],
+        "driv": [
+            ("41 yds", "average gap: amateur vs tour pro"),
+            ("14°", "avg attack angle difference (tour vs am)"),
+        ],
+        "iron": [
+            ("68%", "of amateurs miss greens on approach"),
+            ("4.2°", "avg shaft lean difference at impact"),
+        ],
+        "handicap": [
+            ("3.2", "avg stroke improvement with Scoring Zone"),
+            ("68%", "of scoring gains come from short game"),
+        ],
+    }
+
+    # Find the matching pool
+    pool = None
+    # Check "short game" before "chip" to differentiate them
+    if any(w in topic_lower for w in ["short game"]) and "chip" not in topic_lower:
+        pool = _STAT_POOLS["short game"]
+    else:
+        for key in ["3-putt", "3 putt", "lag", "putt", "bump", "flop", "scrambl",
+                     "chip", "pitch", "bunker", "sand", "pressure", "mental",
+                     "driv", "distance", "iron", "approach", "handicap", "score"]:
+            if key in topic_lower:
+                pool = _STAT_POOLS.get(key)
+                if pool:
+                    break
+            # Map "sand" to "bunker" pool
+            if key == "sand" and not pool:
+                pool = _STAT_POOLS.get("bunker")
+                if pool:
+                    break
+
+    if not pool:
+        pool = [("50+", "scored drills to pressure test your short game")]
+
+    # Rotate selection via seed
+    if rotation_seed:
+        idx = int(hashlib.md5(rotation_seed.encode()).hexdigest(), 16) % len(pool)
+    else:
+        idx = 0
+    return pool[idx]
 
 
 def _topic_label(topic_lower: str) -> str:
@@ -522,7 +680,9 @@ def _topic_label(topic_lower: str) -> str:
         return "CHIPPING DRILL"
     if any(w in topic_lower for w in ["up and down", "up & down", "scrambl"]):
         return "UP & DOWN DRILL"
-    if any(w in topic_lower for w in ["chip", "around the green", "short game"]):
+    if any(w in topic_lower for w in ["short game"]) and "chip" not in topic_lower:
+        return "SHORT GAME"
+    if any(w in topic_lower for w in ["chip", "around the green"]):
         return "CHIPPING DRILL"
     if any(w in topic_lower for w in ["pitch", "wedge", "100 yard", "distance control"]):
         return "PITCHING DRILL"
@@ -610,35 +770,38 @@ def _variant_monumental(
     draw.rounded_rectangle([(56, BAR_H + 22), (56 + dl_w, BAR_H + 56)], radius=3, fill=(*GREEN, 255))
     draw.text((68, BAR_H + 28), drill_label, fill=BAR_TEXT, font=dl_font)
 
-    # ── Score badge top-right ──
-    sc_num  = _fnt(BARLOW_XB, 52)
-    sc_lbl  = _fnt(GEIST_R, 17)
-    sx = W - 160
-    draw.text((sx, BAR_H + 18), f"{opportunity_score:.0f}", fill=(*GREEN, 255), font=sc_num)
-    draw.text((sx, BAR_H + 74), "/ 100", fill=(*TEXT_GHOST, 255), font=sc_lbl)
-    sym = {"rising": "↑ RISING", "falling": "↓ FALLING"}.get(trend_direction, "→ STEADY")
-    col = GREEN if trend_direction == "rising" else (200, 200, 200)
-    draw.text((sx, BAR_H + 94), sym, fill=(*col, 230), font=sc_lbl)
+    # ── Score badge top-right (hidden when score is placeholder) ──
+    if opportunity_score > 30:
+        sc_num  = _fnt(BARLOW_XB, 52)
+        sc_lbl  = _fnt(GEIST_R, 17)
+        sx = W - 160
+        draw.text((sx, BAR_H + 18), f"{opportunity_score:.0f}", fill=(*GREEN, 255), font=sc_num)
+        draw.text((sx, BAR_H + 74), "/ 100", fill=(*TEXT_GHOST, 255), font=sc_lbl)
+        sym = {"rising": "↑ RISING", "falling": "↓ FALLING"}.get(trend_direction, "→ STEADY")
+        col = GREEN if trend_direction == "rising" else (200, 200, 200)
+        draw.text((sx, BAR_H + 94), sym, fill=(*col, 230), font=sc_lbl)
 
     # ── Mid-frame: stat floats just above the text zone ──
+    # Use topic accent colour for stat glow
+    accent = _get_topic_accent(topic.lower())
     stat_y = int(H * 0.50)
     stat_font = _fnt(BARLOW_XB, 100)
     lbl_font  = _fnt(GEIST_R, 26)
     sw = int(draw.textlength(stat, font=stat_font))
 
-    # Glow behind stat
+    # Glow behind stat (uses topic accent colour)
     glow_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     gd2 = ImageDraw.Draw(glow_layer)
-    gd2.text((60, stat_y), stat, fill=(*GREEN, 80), font=stat_font)
+    gd2.text((60, stat_y), stat, fill=(*accent, 80), font=stat_font)
     img.alpha_composite(glow_layer.filter(ImageFilter.GaussianBlur(radius=18)))
 
     draw = ImageDraw.Draw(img)
-    draw.text((60, stat_y), stat, fill=(*GREEN, 255), font=stat_font)
+    draw.text((60, stat_y), stat, fill=(*accent, 255), font=stat_font)
     draw.text((60 + sw + 20, stat_y + 40), stat_lbl, fill=(*TEXT_MID, 210), font=lbl_font)
 
-    # Thin rule between stat and headline
+    # Thin rule between stat and headline (accent colour)
     rule_y = stat_y + 116
-    draw.rectangle([(56, rule_y), (W - 56, rule_y + 1)], fill=(*GREEN, 60))
+    draw.rectangle([(56, rule_y), (W - 56, rule_y + 1)], fill=(*accent, 60))
 
     # ── Headline at bottom — big, left-anchored ──
     hfont = _fnt(BARLOW_XB, 122)
@@ -756,10 +919,11 @@ def _variant_data_readout(
     draw = ImageDraw.Draw(img)
     y += 8
 
-    # ── Stat row ──
+    # ── Stat row (accent colour) ──
+    accent = _get_topic_accent(topic.lower())
     s_big  = _fnt(BARLOW_XB, 72)
     s_lbl  = _fnt(GEIST_R, 22)
-    draw.text((60, y), stat, fill=(*GREEN, 255), font=s_big)
+    draw.text((60, y), stat, fill=(*accent, 255), font=s_big)
     sw = int(draw.textlength(stat, font=s_big))
     draw.text((60 + sw + 20, y + 28), stat_lbl, fill=(*TEXT_MID, 255), font=s_lbl)
     y += 82
@@ -772,11 +936,12 @@ def _variant_data_readout(
         draw.text((124, y), bullet, fill=(*TEXT_PURE, 255), font=bf)
         y += 42
 
-    # ── Opportunity score — right column ──
-    oc_font  = _fnt(BARLOW_XB, 52)
-    oc_label = _fnt(GEIST_R, 18)
-    draw.text((W - 200, sep_y + 28), f"{opportunity_score:.0f}", fill=(*GREEN, 255), font=oc_font)
-    draw.text((W - 200, sep_y + 84), "SCORE/100", fill=(*TEXT_GHOST, 255), font=oc_label)
+    # ── Opportunity score — right column (hidden when placeholder) ──
+    if opportunity_score > 30:
+        oc_font  = _fnt(BARLOW_XB, 52)
+        oc_label = _fnt(GEIST_R, 18)
+        draw.text((W - 200, sep_y + 28), f"{opportunity_score:.0f}", fill=(*GREEN, 255), font=oc_font)
+        draw.text((W - 200, sep_y + 84), "SCORE/100", fill=(*TEXT_GHOST, 255), font=oc_label)
     sym = {"rising": "↑ RISING", "falling": "↓ FALLING"}.get(trend_direction, "→ STEADY")
     col = GREEN if trend_direction == "rising" else (200, 200, 200)
     draw.text((W - 200, sep_y + 108), sym, fill=(*col, 255), font=oc_label)
@@ -921,15 +1086,16 @@ def _variant_precision_scope(
         draw.text((cx + 16, cy), bullet, fill=(*TEXT_PURE, 220), font=bf)
         cy += 34
 
-    # ── Score + trend — top right of image ──
-    sc_num = _fnt(BARLOW_XB, 56)
-    sc_lbl = _fnt(GEIST_R, 17)
-    sx = W - 160
-    draw.text((sx, BAR_H + 20), f"{opportunity_score:.0f}", fill=(*GREEN, 255), font=sc_num)
-    draw.text((sx, BAR_H + 80), "/ 100", fill=(*TEXT_GHOST, 200), font=sc_lbl)
-    sym = {"rising": "↑ RISING", "falling": "↓ FALLING"}.get(trend_direction, "→ STEADY")
-    col = GREEN if trend_direction == "rising" else (200, 200, 200)
-    draw.text((sx, BAR_H + 100), sym, fill=(*col, 230), font=sc_lbl)
+    # ── Score + trend — top right of image (hidden when placeholder) ──
+    if opportunity_score > 30:
+        sc_num = _fnt(BARLOW_XB, 56)
+        sc_lbl = _fnt(GEIST_R, 17)
+        sx = W - 160
+        draw.text((sx, BAR_H + 20), f"{opportunity_score:.0f}", fill=(*GREEN, 255), font=sc_num)
+        draw.text((sx, BAR_H + 80), "/ 100", fill=(*TEXT_GHOST, 200), font=sc_lbl)
+        sym = {"rising": "↑ RISING", "falling": "↓ FALLING"}.get(trend_direction, "→ STEADY")
+        col = GREEN if trend_direction == "rising" else (200, 200, 200)
+        draw.text((sx, BAR_H + 100), sym, fill=(*col, 230), font=sc_lbl)
 
     # ── Thin bottom brand strip ──
     draw.rectangle([(0, H - 50), (W, H)], fill=(0, 0, 0, 220))
@@ -1135,12 +1301,18 @@ def _variant_minimalist(
 
     draw = ImageDraw.Draw(img)
 
-    # ── Top bar ──
-    draw.rectangle([(0, 0), (W, BAR_H)], fill=(*GREEN, 255))
-    bar_font = _fnt(GEIST_B, 22)
-    bar_text = "FREE EARLY ACCESS  ·  scoringzone.net"
-    bt_w = int(draw.textlength(bar_text, font=bar_font))
-    draw.text(((W - bt_w) // 2, (BAR_H - 22) // 2), bar_text, fill=BAR_TEXT, font=bar_font)
+    # ── Minimal brand watermark (no full top bar — let photo breathe) ──
+    wm_font = _fnt(GEIST_B, 16)
+    wm_text = "scoringzone.net"
+    wm_w = int(draw.textlength(wm_text, font=wm_font))
+    # Semi-transparent pill in top-right corner
+    wm_pad = 8
+    wm_x = W - wm_w - wm_pad * 2 - 20
+    wm_bg = Image.new("RGBA", (wm_w + wm_pad * 2, 28), (0, 0, 0, 0))
+    ImageDraw.Draw(wm_bg).rounded_rectangle([(0, 0), (wm_w + wm_pad * 2 - 1, 27)], radius=4, fill=(10, 10, 10, 140))
+    img.paste(wm_bg, (wm_x, 16), wm_bg)
+    draw = ImageDraw.Draw(img)
+    draw.text((wm_x + wm_pad, 20), wm_text, fill=(*GREEN, 200), font=wm_font)
 
     # ── Massive stat centered near top third ──
     stat_font = _fnt(BARLOW_XB, 220)
@@ -1156,15 +1328,16 @@ def _variant_minimalist(
     hd.text(((W - sw) // 2, stat_y), stat, fill=(*BG_DARK, 180), font=stat_font)
     img.alpha_composite(halo.filter(ImageFilter.GaussianBlur(radius=28)))
 
-    # Glow
+    # Glow (accent colour)
+    accent = _get_topic_accent(topic.lower())
     glow = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     gd = ImageDraw.Draw(glow)
-    gd.text(((W - sw) // 2, stat_y), stat, fill=(*GREEN, 55), font=stat_font)
+    gd.text(((W - sw) // 2, stat_y), stat, fill=(*accent, 55), font=stat_font)
     img.alpha_composite(glow.filter(ImageFilter.GaussianBlur(radius=20)))
 
     txt_layer = Image.new("RGBA", (W, H), (0, 0, 0, 0))
     td = ImageDraw.Draw(txt_layer)
-    td.text(((W - sw) // 2, stat_y), stat, fill=(*GREEN, 255), font=stat_font)
+    td.text(((W - sw) // 2, stat_y), stat, fill=(*accent, 255), font=stat_font)
     img.alpha_composite(txt_layer)
 
     draw = ImageDraw.Draw(img)
@@ -1215,14 +1388,15 @@ def _variant_minimalist(
 
     draw = ImageDraw.Draw(img)
 
-    # Score + trend bottom right
-    sc_font = _fnt(BARLOW_XB, 42)
-    sc_lbl2 = _fnt(GEIST_R, 16)
-    draw.text((W - 148, hl_y + 4), f"{opportunity_score:.0f}", fill=(*GREEN, 230), font=sc_font)
-    draw.text((W - 148, hl_y + 50), "/ 100", fill=(*TEXT_GHOST, 180), font=sc_lbl2)
-    sym = {"rising": "↑ RISING", "falling": "↓ FALLING"}.get(trend_direction, "→ STEADY")
-    col = GREEN if trend_direction == "rising" else (200, 200, 200)
-    draw.text((W - 148, hl_y + 70), sym, fill=(*col, 200), font=sc_lbl2)
+    # Score + trend bottom right (hidden when placeholder)
+    if opportunity_score > 30:
+        sc_font = _fnt(BARLOW_XB, 42)
+        sc_lbl2 = _fnt(GEIST_R, 16)
+        draw.text((W - 148, hl_y + 4), f"{opportunity_score:.0f}", fill=(*GREEN, 230), font=sc_font)
+        draw.text((W - 148, hl_y + 50), "/ 100", fill=(*TEXT_GHOST, 180), font=sc_lbl2)
+        sym = {"rising": "↑ RISING", "falling": "↓ FALLING"}.get(trend_direction, "→ STEADY")
+        col = GREEN if trend_direction == "rising" else (200, 200, 200)
+        draw.text((W - 148, hl_y + 70), sym, fill=(*col, 200), font=sc_lbl2)
 
     # ── Footer ──
     footer_y = H - footer_h
@@ -1389,12 +1563,17 @@ def _variant_quote_pull(
 
     draw = ImageDraw.Draw(img)
 
-    # ── Top bar ──
-    draw.rectangle([(0, 0), (W, BAR_H)], fill=(*GREEN, 255))
-    bar_font = _fnt(GEIST_B, 22)
-    bar_text = "FREE EARLY ACCESS  ·  scoringzone.net"
-    bt_w = int(draw.textlength(bar_text, font=bar_font))
-    draw.text(((W - bt_w) // 2, (BAR_H - 22) // 2), bar_text, fill=BAR_TEXT, font=bar_font)
+    # ── Minimal brand watermark (no full bar — quote needs visual space) ──
+    wm_font = _fnt(GEIST_B, 16)
+    wm_text = "scoringzone.net"
+    wm_w = int(draw.textlength(wm_text, font=wm_font))
+    wm_pad = 8
+    wm_x = W - wm_w - wm_pad * 2 - 20
+    wm_bg = Image.new("RGBA", (wm_w + wm_pad * 2, 28), (0, 0, 0, 0))
+    ImageDraw.Draw(wm_bg).rounded_rectangle([(0, 0), (wm_w + wm_pad * 2 - 1, 27)], radius=4, fill=(10, 10, 10, 140))
+    img.paste(wm_bg, (wm_x, 16), wm_bg)
+    draw = ImageDraw.Draw(img)
+    draw.text((wm_x + wm_pad, 20), wm_text, fill=(*GREEN, 200), font=wm_font)
 
     # ── Giant opening quote mark ──
     q_font = _fnt(BARLOW_XB, 280)
@@ -1697,10 +1876,13 @@ def generate_images(
     os.makedirs(output_folder, exist_ok=True)
 
     tl       = topic.lower()
-    bullets  = _make_bullets(tl)
-    stat, stat_lbl = _make_stat(tl)
+    seed     = rotation_seed or os.path.basename(output_folder)
+    bullets  = _make_bullets(tl, rotation_seed=seed)
+    stat, stat_lbl = _make_stat(tl, rotation_seed=seed)
     drill_label = _topic_label(tl)
     logo     = _get_logo()
+    accent   = _get_topic_accent(tl)
+    mood     = _get_topic_mood(tl)
 
     builders = [
         _variant_monumental,
@@ -1715,12 +1897,14 @@ def generate_images(
 
     # Load photo backgrounds — one per variant, rotated by output_folder path
     # so different packages of the same topic use different photos
-    seed = rotation_seed or os.path.basename(output_folder)
     photo_filenames = _get_topic_photos(tl, n=n_variants, rotation_seed=seed)
 
     paths = []
     for v in range(min(n_variants, len(builders))):
-        photo_bg = _make_photo_bg(photo_filenames[v % len(photo_filenames)])
+        photo_bg = _make_photo_bg(
+            photo_filenames[v % len(photo_filenames)],
+            mood=mood,
+        )
         img = builders[v](
             topic=topic,
             opportunity_score=opportunity_score,

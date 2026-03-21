@@ -139,78 +139,109 @@ def _ig_caption(
     kw = opp.keyword.lower()
     caption_perf = caption_perf or {}
 
-    hooks = {
-        "putt":   "Three putts don't just cost you strokes. They cost you momentum, confidence, and the round you were building.",
-        "3-putt": "Ninety percent of three putts come from lag putts finishing too long or too short — not from missing the line.",
-        "chip":   "The short game is where most rounds are won and lost. Not on the tee. Not on the fairway.",
-        "bunker": "Most golfers fear bunkers. Tour pros love them. Here's the difference.",
-        "pitch":  "Shots inside 100 yards make up the majority of strokes in your round. Are you practising them?",
-        "wedge":  "From 100 yards in — this is where your scorecard gets written.",
-        "score":  "Breaking 90 isn't about longer drives. It's about getting up and down more often.",
-        "break":  "60-65 of your shots per round happen inside 100 yards. That's where scoring lives.",
-        "short":  "Most golfers practise the short game wrong. Here's what actually works.",
-        "practice": "The problem isn't discipline — it's that your practice has no structure, no score, and no stakes.",
+    # Rotating hooks — multiple per topic for feed variety
+    hooks_pool = {
+        "putt": [
+            "Three putts don't just cost you strokes. They cost you momentum, confidence, and the round you were building.",
+            "The average 15-handicapper wastes 4.2 strokes per round from poor lag putting. Here's the fix.",
+            "Every 3-putt starts 20 feet away. Not on the 3-footer you missed — on the lag putt before it.",
+        ],
+        "3-putt": [
+            "Ninety percent of three putts come from lag putts finishing too long or too short — not from missing the line.",
+            "You don't have a putting problem. You have a speed control problem. Here's how to solve it in 20 minutes.",
+        ],
+        "chip": [
+            "The short game is where most rounds are won and lost. Not on the tee. Not on the fairway.",
+            "90% of amateurs flip their wrists on chip shots. One setup change fixes it permanently.",
+            "Want to know the fastest way to drop 5 strokes? Stop skulling chips across the green.",
+        ],
+        "bunker": [
+            "Most golfers fear bunkers. Tour pros love them. Here's the difference.",
+            "The #1 bunker mistake: trying to hit the ball. You should be hitting the sand.",
+            "Tour pros get up and down from sand 52% of the time. Amateurs? 12%. The fix takes 20 minutes.",
+        ],
+        "pitch":  ["Shots inside 100 yards make up the majority of strokes in your round. Are you practising them?"],
+        "wedge":  ["From 100 yards in — this is where your scorecard gets written."],
+        "score":  ["Breaking 90 isn't about longer drives. It's about getting up and down more often."],
+        "break":  ["60-65 of your shots per round happen inside 100 yards. That's where scoring lives."],
+        "short": [
+            "Most golfers practise the short game wrong. Here's what actually works.",
+            "65% of your score happens inside 100 yards. But how much of your practice time goes there?",
+        ],
+        "practice": ["The problem isn't discipline — it's that your practice has no structure, no score, and no stakes."],
     }
 
-    matched_key, template_key = _weighted_template_key(kw, hooks, caption_perf)
-    hook = (
-        hooks[matched_key]
-        if matched_key and matched_key in hooks
-        else f"Here's what the data shows about {opp.topic.lower()} — and how to fix it fast."
-    )
-
-    bodies = {
-        "putt": (
-            "The Lag Putting Ladder — done in 20 minutes:\n"
-            "→ 5 balls from 20 ft, 30 ft & 40 ft\n"
-            "→ Every putt must finish within 3 feet\n"
-            "→ Score 12/15 to pass the drill\n\n"
-            "Tour pros leave every lag putt within 3 feet from 30+ft.\n"
-            "2 weeks of this and your 3-putts disappear."
-        ),
-        "chip": (
-            "Fix it in one 20-minute session:\n"
-            "✅ Weight forward 60/40 at address\n"
-            "✅ Shaft leaning toward the target\n"
-            "✅ Small shoulder turn — zero wrist flip\n"
-            "✅ Low, quiet follow-through\n\n"
-            "Track your up-&-down % and aim for 40% first.\n"
-            "Tour pros convert 60-65%. You can get there."
-        ),
-        "bunker": (
-            "The Bunker Escape Formula (works every time):\n"
-            "✅ Open the clubface FIRST, then grip\n"
-            "✅ Aim 2 inches behind the ball\n"
-            "✅ Swing THROUGH — never decelerate\n"
-            "✅ Finish HIGH, every single time\n\n"
-            "20 repetitions. Bunkers stop being scary."
-        ),
-        "pitch": (
-            "The 30-yard Pitching Drill:\n"
-            "→ Start 30 yards from the pin\n"
-            "→ Hinge wrists early in the backswing\n"
-            "→ Hold the face open — let the loft work\n"
-            "→ Land every ball within 6 feet\n\n"
-            "3 sessions/week × 20 mins = measurable improvement in 2-3 weeks."
-        ),
-        "score": (
-            "The fastest path to lower scores:\n"
-            "→ 20-30 min sessions, 3× per week\n"
-            "→ Session 1: putting\n"
-            "→ Session 2: chipping\n"
-            "→ Session 3: mixed\n\n"
-            "Not more practice. Smarter practice. Scored practice."
-        ),
-        "practice": (
-            "The structure that makes practice addictive:\n"
-            "✅ 10 min block practice (groove the movement)\n"
-            "✅ 10 min variable practice (different targets)\n"
-            "✅ 10 min scored challenge (personal best to beat)\n\n"
-            "When practice has a score, motivation takes care of itself."
-        ),
+    # Rotating bodies
+    bodies_pool = {
+        "putt": [
+            ("The Lag Putting Ladder — done in 20 minutes:\n"
+             "→ 5 balls from 20 ft, 30 ft & 40 ft\n"
+             "→ Every putt must finish within 3 feet\n"
+             "→ Score 12/15 to pass the drill\n\n"
+             "Tour pros leave every lag putt within 3 feet from 30+ft.\n"
+             "2 weeks of this and your 3-putts disappear."),
+            ("The Gate Challenge drill:\n"
+             "→ Set two tees 3 inches wider than your putter\n"
+             "→ Start at 3 ft, move back to 6, 9, 12, 15\n"
+             "→ 3 consecutive makes to advance\n\n"
+             "Your stroke gets grooved. Your nerves get tested.\n"
+             "That's why it works."),
+        ],
+        "chip": [
+            ("Fix it in one 20-minute session:\n"
+             "✅ Weight forward 60/40 at address\n"
+             "✅ Shaft leaning toward the target\n"
+             "✅ Small shoulder turn — zero wrist flip\n"
+             "✅ Low, quiet follow-through\n\n"
+             "Track your up-&-down % and aim for 40% first.\n"
+             "Tour pros convert 60-65%. You can get there."),
+            ("The One-Club Challenge:\n"
+             "→ Pick your pitching wedge — nothing else\n"
+             "→ 10 shots from 3 different lies\n"
+             "→ Score by proximity: inside 6ft = 2pts, inside 10ft = 1pt\n\n"
+             "Master one club before adding more. That's how pros learned."),
+        ],
+        "bunker": [
+            ("The Bunker Escape Formula (works every time):\n"
+             "✅ Open the clubface FIRST, then grip\n"
+             "✅ Aim 2 inches behind the ball\n"
+             "✅ Swing THROUGH — never decelerate\n"
+             "✅ Finish HIGH, every single time\n\n"
+             "20 repetitions. Bunkers stop being scary."),
+            ("The Splash Drill:\n"
+             "→ Draw a line in the sand 2 inches behind the ball\n"
+             "→ Your goal: hit THAT line, not the ball\n"
+             "→ Wide stance, dig your feet in, full swing\n\n"
+             "The ball comes out as a consequence of hitting sand.\n"
+             "Stop trying to lift it. Trust the club."),
+        ],
+        "short": [
+            ("Most golfers practise the wrong way. Here's the right structure:\n"
+             "→ 10 min putting drills (speed control)\n"
+             "→ 10 min chipping (one club, different lies)\n"
+             "→ 10 min scored challenge (track your best)\n\n"
+             "3 sessions per week. Results in 2-3 weeks."),
+        ],
     }
-    body = next((v for k, v in bodies.items() if k in kw),
-                f"The {opp.topic} drill that works:\n"
+
+    # Select based on cycle number for rotation
+    cycle = getattr(opp, 'cycle_number', 0) or 0
+
+    matched_key, template_key = _weighted_template_key(kw, {k: v[0] for k, v in hooks_pool.items()}, caption_perf)
+
+    # Get hook from pool with rotation
+    if matched_key and matched_key in hooks_pool:
+        pool = hooks_pool[matched_key]
+        hook = pool[cycle % len(pool)]
+    else:
+        hook = f"Here's what the data shows about {opp.topic.lower()} — and how to fix it fast."
+
+    # Get body from pool with rotation
+    body_pool = next((v for k, v in bodies_pool.items() if k in kw), None)
+    if body_pool:
+        body = body_pool[cycle % len(body_pool)]
+    else:
+        body = (f"The {opp.topic} drill that works:\n"
                 "→ Start simple — 10 balls, one target\n"
                 "→ Score every session\n"
                 "→ Chase your personal best\n\n"
@@ -222,51 +253,57 @@ def _ig_caption(
 
 def _x_caption(opp: ContentOpportunity) -> str:
     kw = opp.keyword.lower()
+    cycle = getattr(opp, 'cycle_number', 0) or 0
 
-    posts = {
-        "putt": (
-            "90% of 3-putts are a distance control problem, not a technique problem.\n\n"
-            "Lag Ladder drill: 5 balls from 20/30/40ft. Every putt within 3 feet. Score 12/15.\n\n"
-            "2 weeks. 3-putts gone."
-        ),
-        "3-putt": (
-            "Most golfers aim at the hole and hope the speed takes care of itself.\n\n"
-            "It doesn't.\n\n"
-            "Lag Ladder: 5 balls at 20/30/40ft → every putt within 3ft → score 12/15 to pass."
-        ),
-        "chip": (
-            "90% of amateurs flip their wrists through impact when chipping.\n\n"
-            "Fix: weight forward, shaft lean at address, shoulder turn only.\n\n"
-            "Takes 20 minutes to rewire. Changes everything."
-        ),
-        "bunker": (
-            "You're still in the bunker because you're trying to hit the ball.\n\n"
-            "Hit the SAND 2 inches behind it. Open face → swing through → finish high.\n\n"
-            "That's the whole secret."
-        ),
-        "pitch": (
-            "Pitching is 30% of your score and about 5% of your practice time.\n\n"
-            "Start from 30 yards. Hinge early. Hold the face open. Land within 6 feet.\n\n"
-            "3 sessions/week × 20 mins. Done in 2 weeks."
-        ),
-        "score": (
-            "60-65 of your shots per round happen inside 100 yards.\n\n"
-            "That's where breaking 90 lives. Not on the tee.\n\n"
-            "3 x 20-min short game sessions per week is all it takes."
-        ),
-        "break": (
-            "Breaking 90 isn't about longer drives.\n\n"
-            "It's about: fewer 3-putts + more up-and-downs.\n\n"
-            "That's it. 2-3 months of smart practice and you're there."
-        ),
-        "practice": (
-            "Boring practice won't fix your game.\n\n"
-            "Structure: 10 min block → 10 min variable → 10 min scored challenge.\n\n"
-            "When practice has a score, you actually show up."
-        ),
+    posts_pool = {
+        "putt": [
+            ("90% of 3-putts are a distance control problem, not a technique problem.\n\n"
+             "Lag Ladder drill: 5 balls from 20/30/40ft. Every putt within 3 feet. Score 12/15.\n\n"
+             "2 weeks. 3-putts gone."),
+            ("43% of all golf strokes are putts. Yet most golfers spend 80% of practice time on the range.\n\n"
+             "Gate drill: 3 consecutive makes at 3/6/9/12/15ft.\n\n"
+             "20 minutes. Real results."),
+        ],
+        "3-putt": [
+            ("Most golfers aim at the hole and hope the speed takes care of itself.\n\n"
+             "It doesn't.\n\n"
+             "Lag Ladder: 5 balls at 20/30/40ft → every putt within 3ft → score 12/15 to pass."),
+            ("Your 3-putt problem starts 30 feet away, not on the 4-footer.\n\n"
+             "Fix lag distance control first. Everything else follows.\n\n"
+             "Trash can lid = your target zone."),
+        ],
+        "chip": [
+            ("90% of amateurs flip their wrists through impact when chipping.\n\n"
+             "Fix: weight forward, shaft lean at address, shoulder turn only.\n\n"
+             "Takes 20 minutes to rewire. Changes everything."),
+            ("Tour pros get up and down 60% of the time. Amateurs? 18%.\n\n"
+             "The difference isn't talent. It's one setup adjustment.\n\n"
+             "Weight forward. Quiet wrists. Done."),
+        ],
+        "bunker": [
+            ("You're still in the bunker because you're trying to hit the ball.\n\n"
+             "Hit the SAND 2 inches behind it. Open face → swing through → finish high.\n\n"
+             "That's the whole secret."),
+            ("Tour sand save rate: 52%. Amateur: 12%.\n\n"
+             "The fix: open the face BEFORE you grip. Then swing through the sand, not at the ball.\n\n"
+             "20 reps. Fear gone."),
+        ],
+        "short": [
+            ("65% of your score happens inside 100 yards.\n\n"
+             "But most golfers spend 90% of practice time on the driving range.\n\n"
+             "Flip the ratio. Watch your scores drop."),
+        ],
     }
-    body = next((v for k, v in posts.items() if k in kw),
-                f"The {opp.topic} insight that changes how you practice:\n\n"
+
+    # Find matching pool with rotation
+    body = None
+    for k, pool in posts_pool.items():
+        if k in kw:
+            body = pool[cycle % len(pool)]
+            break
+
+    if not body:
+        body = (f"The {opp.topic} insight that changes how you practice:\n\n"
                 "Score every session. Chase your personal best.\n\n"
                 "One focused session beats ten scattered ones.")
 
@@ -361,7 +398,7 @@ def build_package(
         opportunity_score=opp.opportunity_score,
         trend_direction=opp.trend_direction,
         output_folder=folder,
-        n_variants=3,
+        n_variants=8,
     )
 
     # ── Captions ──
@@ -393,7 +430,7 @@ def build_package(
         "top_video_id":      opp.top_video_id,
         "top_channel":       opp.top_channel,
         "cycle_number":      cycle_number,
-        "image_count":       3,
+        "image_count":       8,
         "caption_template":  caption_template,
         "preferred_variant": preferred_variant,
         "created_at":        datetime.utcnow().isoformat(),
