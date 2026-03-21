@@ -1984,18 +1984,30 @@ function setFilter(filter) {
   renderPackages();
 }
 
+const PAGE_SIZE = 12;
+let currentPage = 1;
+let filteredPackages = [];
+
 function renderPackages() {
   const grid = document.getElementById('package-grid');
-  let pkgs = allPackages;
+  filteredPackages = allPackages;
   if (currentFilter === 'scheduled') {
-    pkgs = pkgs.filter(p => p.schedule_status === 'scheduled');
+    filteredPackages = filteredPackages.filter(p => p.schedule_status === 'scheduled');
   } else if (currentFilter !== 'all') {
-    pkgs = pkgs.filter(p => p.status === currentFilter);
+    filteredPackages = filteredPackages.filter(p => p.status === currentFilter);
   }
 
-  document.getElementById('packages-count').textContent = `${pkgs.length} post${pkgs.length !== 1 ? 's' : ''}`;
+  currentPage = 1;
+  renderPage(grid);
+}
 
-  if (!pkgs.length) {
+function renderPage(grid) {
+  const total = filteredPackages.length;
+  const pkgs = filteredPackages.slice(0, currentPage * PAGE_SIZE);
+
+  document.getElementById('packages-count').textContent = `${total} post${total !== 1 ? 's' : ''}`;
+
+  if (!total) {
     grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
       <div class="empty-icon">◎</div>
       <div class="empty-title">No Posts Found</div>
@@ -2004,7 +2016,7 @@ function renderPackages() {
     return;
   }
 
-  grid.innerHTML = pkgs.map(p => {
+  const cards = pkgs.map(p => {
     const img = p.images?.[0] ? `<img src="/api/packages/${p.id}/image/${encodeURIComponent(p.images[0])}" loading="lazy" alt="">` : '<div style="width:100%;height:100%;background:#1a1a1a;display:flex;align-items:center;justify-content:center;color:#333;font-size:24px">◎</div>';
     const score = p.score ? `<div class="card-score">${p.score.toFixed(1)}</div>` : '';
     const engScore = p.engagement_score != null
@@ -2034,6 +2046,21 @@ function renderPackages() {
       </div>
     </div>`;
   }).join('');
+
+  const hasMore = total > currentPage * PAGE_SIZE;
+  const loadMore = hasMore ? `
+    <div style="grid-column:1/-1;text-align:center;padding:24px 0;">
+      <button onclick="loadMorePackages()" style="background:transparent;border:1px solid #00ed04;color:#00ed04;padding:10px 32px;border-radius:4px;cursor:pointer;font-size:14px;letter-spacing:1px;">
+        LOAD MORE (${total - currentPage * PAGE_SIZE} remaining)
+      </button>
+    </div>` : '';
+
+  grid.innerHTML = cards + loadMore;
+}
+
+function loadMorePackages() {
+  currentPage++;
+  renderPage(document.getElementById('package-grid'));
 }
 
 function formatTopic(t) {
