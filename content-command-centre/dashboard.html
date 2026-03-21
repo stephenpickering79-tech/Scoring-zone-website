@@ -345,66 +345,58 @@
     border: 1px solid rgba(162,89,255,0.4);
   }
 
+  /* ── PACKAGE GRID — horizontal card layout with large image ── */
   .package-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
     padding: 20px 26px;
     overflow-y: auto;
     flex: 1;
-    align-content: start;
-  }
-  @media (min-width: 1600px) {
-    .package-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-  @media (max-width: 900px) {
-    .package-grid { grid-template-columns: 1fr; }
   }
   .package-card {
     background: var(--panel);
     border: 1px solid var(--border);
-    border-radius: 7px;
+    border-radius: 8px;
     overflow: hidden;
     cursor: pointer;
     transition: all 0.2s;
     position: relative;
+    display: flex;
+    flex-direction: row;
+    min-height: 220px;
   }
   .package-card:hover {
     border-color: var(--border3);
-    transform: translateY(-2px);
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
   }
   .package-card.approved {
     border-color: rgba(2,244,67,0.25);
-    box-shadow: 0 0 0 0 rgba(2,244,67,0);
   }
   .package-card.approved:hover {
     border-color: rgba(2,244,67,0.5);
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 20px rgba(2,244,67,0.08);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5), 0 0 20px rgba(2,244,67,0.08);
   }
   .package-card.posted { border-color: rgba(74,158,255,0.25); }
   .package-card.rejected { opacity: 0.4; filter: grayscale(0.5); }
 
+  /* Left side: square image, full height */
   .card-image {
     position: relative;
-    width: 100%;
-    padding-bottom: 80%;
-    height: 0;
-    background: var(--surface);
+    width: 220px;
+    min-width: 220px;
+    background: #0a0a0a;
     overflow: hidden;
+    flex-shrink: 0;
   }
   .card-image img {
-    position: absolute;
-    top: 0; left: 0;
     width: 100%;
     height: 100%;
-    object-fit: contain;
-    background: #0a0a0a;
+    object-fit: cover;
     transition: transform 0.35s;
+    display: block;
   }
   .card-image .card-img-placeholder {
-    position: absolute;
-    top: 0; left: 0;
     width: 100%;
     height: 100%;
     background: #1a1a1a;
@@ -416,12 +408,24 @@
   }
   .package-card:hover .card-image img { transform: scale(1.05); }
 
-  /* Status indicator as a top-edge stripe */
+  /* Responsive: larger image on wider screens */
+  @media (min-width: 1200px) {
+    .card-image { width: 280px; min-width: 280px; }
+  }
+  @media (min-width: 1600px) {
+    .card-image { width: 340px; min-width: 340px; }
+  }
+  @media (max-width: 700px) {
+    .package-card { flex-direction: column; min-height: auto; }
+    .card-image { width: 100%; min-width: 100%; aspect-ratio: 1; }
+  }
+
+  /* Status indicator as a left-edge stripe */
   .package-card::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
+    top: 0; left: 0; bottom: 0;
+    width: 3px;
     z-index: 2;
     opacity: 0;
     transition: opacity 0.2s;
@@ -453,7 +457,7 @@
 
   .card-score {
     position: absolute;
-    top: 10px;
+    bottom: 10px;
     left: 10px;
     background: rgba(8,8,8,0.88);
     backdrop-filter: blur(6px);
@@ -466,10 +470,18 @@
     border: 1px solid rgba(245,197,24,0.2);
   }
 
-  .card-body { padding: 14px 16px 16px; }
+  /* Right side: content body */
+  .card-body {
+    padding: 16px 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+  }
   .card-topic {
     font-family: var(--font-cond);
-    font-size: 17px;
+    font-size: 20px;
     font-weight: 700;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -485,24 +497,26 @@
     font-family: var(--font-mono);
     display: flex;
     gap: 10px;
-    margin-bottom: 7px;
+    margin-bottom: 10px;
     letter-spacing: 0.03em;
   }
   .card-caption {
     font-size: 13px;
-    color: var(--muted);
-    line-height: 1.5;
+    color: var(--text2);
+    line-height: 1.55;
     font-weight: 400;
-    display: -webkit-box;
-    -webkit-line-clamp: 4;
-    -webkit-box-orient: vertical;
+    flex: 1;
     overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
   }
   .card-platforms {
     display: flex;
     gap: 5px;
-    margin-top: 9px;
+    margin-top: 12px;
     flex-wrap: wrap;
+    flex-shrink: 0;
   }
   .platform-pill {
     font-size: 9px;
@@ -2059,19 +2073,23 @@ function renderPage(grid) {
     const cardClass     = isScheduled ? `${p.status} scheduled` : p.status;
 
     const imgCount = (p.images || []).length;
-    const imgBadge = imgCount > 1 ? `<div style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.7);color:rgba(255,255,255,0.8);font-family:var(--font-mono);font-size:10px;padding:2px 7px;border-radius:3px;letter-spacing:0.04em">${imgCount} variants</div>` : '';
+    const imgBadge = imgCount > 1 ? `<div style="position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,0.75);color:rgba(255,255,255,0.7);font-family:var(--font-mono);font-size:9px;padding:2px 6px;border-radius:3px;letter-spacing:0.04em">${imgCount} variants</div>` : '';
 
     return `<div class="package-card ${cardClass}" onclick="openReview('${p.id}')">
-      <div class="card-image">${img}${score}${engScore}${imgBadge}<span class="card-status-badge status-${displayStatus}">${badgeLabel}</span></div>
+      <div class="card-image">${img}${score}${imgBadge}</div>
       <div class="card-body">
-        <div class="card-topic">${formatTopic(p.topic || p.id)}</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap">
+          <div class="card-topic" style="margin-bottom:0;flex:1">${formatTopic(p.topic || p.id)}</div>
+          <span class="card-status-badge status-${displayStatus}" style="position:static;flex-shrink:0">${badgeLabel}</span>
+          ${engScore ? `<span style="flex-shrink:0">${engScore}</span>` : ''}
+        </div>
         <div class="card-meta">
           ${p.cycle ? `<span>Cycle ${p.cycle}</span>` : ''}
           ${p.trend ? `<span class="${p.trend === 'rising' ? 'trend-rising' : ''}">${p.trend === 'rising' ? '↑' : p.trend === 'falling' ? '↓' : '→'} ${p.trend}</span>` : ''}
+          ${isScheduled && p.slot_display ? `<span style="color:var(--purple)">⏱ ${p.slot_display}</span>` : ''}
         </div>
         <div class="card-caption">${escHtml(p.ig_caption || '')}</div>
         <div class="card-platforms">${igPosted}${fbPosted}${xPosted}</div>
-        ${isScheduled && p.slot_display ? `<div class="pill-scheduled" style="margin-top:6px;display:inline-block">⏱ ${p.slot_display}</div>` : ''}
       </div>
     </div>`;
   }).join('');
