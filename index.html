@@ -1080,11 +1080,24 @@
       .hero-layout {
         grid-template-columns: 1fr;
         gap: 2.5rem;
+      }
+
+      .hero-layout > div:first-child {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         text-align: center;
       }
 
       .hero-sub { margin-left: auto; margin-right: auto; }
       .hero-ctas { justify-content: center; }
+
+      .hero-layout > div:last-child {
+        display: flex;
+        justify-content: center;
+      }
+
+      .stats-widget { max-width: 320px; }
 
       .process-grid { grid-template-columns: repeat(2, 1fr); }
       .features-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1110,11 +1123,30 @@
       .hero-layout {
         grid-template-columns: 1fr;
         gap: 2rem;
+      }
+
+      /* Reverse order: show screenshot first, then text */
+      .hero-layout > div:first-child { order: 2; }
+      .hero-layout > div:last-child { order: 1; }
+
+      .hero-layout > div:first-child {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
         text-align: center;
       }
 
       .hero-sub { margin-left: auto; margin-right: auto; }
-      .hero-ctas { justify-content: center; }
+      .hero-ctas { justify-content: center; flex-direction: column; align-items: center; }
+      .hero-ctas .btn-primary,
+      .hero-ctas .btn-outline { width: 100%; justify-content: center; max-width: 300px; }
+
+      .hero-layout > div:last-child {
+        display: flex;
+        justify-content: center;
+      }
+
+      .stats-widget { max-width: 260px; }
 
       .numbers-strip {
         grid-template-columns: repeat(2, 1fr);
