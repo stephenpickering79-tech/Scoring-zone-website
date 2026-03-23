@@ -1057,6 +1057,12 @@
       50% { opacity: 0.5; box-shadow: 0 0 4px rgba(34, 197, 94, 0.15); }
     }
 
+    /* Hero elements — CSS animation, always plays on load */
+    .hero-anim {
+      opacity: 0;
+      animation: fadeUp 0.8s ease-out forwards;
+    }
+
     /* Scroll-triggered */
     .reveal {
       opacity: 0;
@@ -1199,17 +1205,17 @@
         <div class="container">
             <div class="hero-layout">
             <div>
-                <div class="hero-badge reveal">
+                <div class="hero-badge hero-anim" style="animation-delay: 0.2s;">
                     Early Access — Now Live
                 </div>
-                <h1 class="display-xl reveal" style="margin-top: 16px;">Pressure Test Your <span class="hero-accent">Short Game</span></h1>
-                <p class="hero-sub reveal">Simulate tournament pressure, track every shot, and level up with data-driven short game drills.</p>
-                <div class="hero-ctas reveal">
+                <h1 class="display-xl hero-anim" style="margin-top: 16px; animation-delay: 0.35s;">Pressure Test Your <span class="hero-accent">Short Game</span></h1>
+                <p class="hero-sub hero-anim" style="animation-delay: 0.5s;">Simulate tournament pressure, track every shot, and level up with data-driven short game drills.</p>
+                <div class="hero-ctas hero-anim" style="animation-delay: 0.65s;">
                     <a href="#signup" class="btn-primary">Free Early Access</a>
                     <a href="#process" class="btn-outline">See How It Works</a>
                 </div>
             </div>
-            <div class="reveal">
+            <div class="hero-anim" style="animation-delay: 0.5s;">
                 <div class="stats-widget">
                     <div class="stats-widget-glow"></div>
                     <div class="corner-bracket" style="top: -6px; left: -6px;"></div>
